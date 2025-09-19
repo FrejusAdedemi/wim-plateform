@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Avg, Sum, Q
 from django.utils import timezone
+from django.http import JsonResponse
 from datetime import timedelta
 
 from apps.enrollments.models import Enrollment
@@ -28,12 +29,25 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # Statistiques principales
         enrollments = Enrollment.objects.filter(user=user, is_active=True)
 
+        # Calculer la progression moyenne
+        if enrollments.exists():
+            avg_progress = sum(e.progress_percentage for e in enrollments) / enrollments.count()
+        else:
+            avg_progress = 0
+
+        # Récupérer le temps d'étude total
+        try:
+            stats = UserStatistics.objects.get(user=user)
+            total_hours = stats.total_study_time
+        except UserStatistics.DoesNotExist:
+            total_hours = 0
+
         context.update({
             'active_courses_count': enrollments.count(),
             'completed_courses_count': enrollments.filter(is_completed=True).count(),
             'certificates_count': Certificate.objects.filter(user=user).count(),
-            'total_study_hours': user.total_study_time,
-            'average_progress': user.average_progress,
+            'total_study_hours': total_hours,
+            'average_progress': round(avg_progress, 1),
 
             # Cours récents
             'recent_courses': self.get_recent_courses(user),
@@ -63,6 +77,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         enrolled_categories = Enrollment.objects.filter(
             user=user
         ).values_list('course__category', flat=True)
+
+        if not enrolled_categories:
+            # Si pas de cours, retourner les cours populaires
+            return Course.objects.filter(
+                is_published=True
+            ).order_by('-rating', '-total_students')[:limit]
 
         # Cours recommandés dans les mêmes catégories
         return Course.objects.filter(
@@ -143,6 +163,40 @@ def filter_courses(request):
         })
 
     return redirect('dashboard:index')
+
+
+@login_required
+def user_stats(request):
+    """Statistiques utilisateur pour HTMX"""
+    user = request.user
+
+    enrollments = Enrollment.objects.filter(user=user, is_active=True)
+
+    # Calculer progression moyenne
+    if enrollments.exists():
+        avg_progress = sum(e.progress_percentage for e in enrollments) / enrollments.count()
+    else:
+        avg_progress = 0
+
+    # Temps d'étude
+    try:
+        stats = UserStatistics.objects.get(user=user)
+        study_hours = stats.total_study_time
+    except UserStatistics.DoesNotExist:
+        study_hours = 0
+
+    stats_data = {
+        'total_courses': enrollments.count(),
+        'completed_courses': enrollments.filter(is_completed=True).count(),
+        'certificates': Certificate.objects.filter(user=user).count(),
+        'study_hours': study_hours,
+        'average_progress': round(avg_progress, 1),
+    }
+
+    if request.htmx:
+        return render(request, 'dashboard/partials/user_stats.html', {'stats': stats_data})
+
+    return JsonResponse(stats_data)
 
 
 # Gestionnaires d'erreurs personnalisés

@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordResetForm
 from apps.users.models import User
 
 
@@ -81,3 +82,23 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'Vous êtes déconnecté')
     return redirect('authentication:login')
+
+
+def password_reset_view(request):
+    """Vue de réinitialisation du mot de passe"""
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                email_template_name='authentication/password_reset_email.html',
+                subject_template_name='authentication/password_reset_subject.txt',
+            )
+            messages.success(request, 'Un email de réinitialisation a été envoyé.')
+            return redirect('authentication:password_reset_done')
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'authentication/password_reset.html', {'form': form})
+
