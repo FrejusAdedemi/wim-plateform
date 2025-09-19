@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Vérifier un Certificat - WIM Platform{% endblock %}
+{% block page_title %}Vérification de Certificat{% endblock %}
+{% block page_subtitle %}Authentifiez un certificat WIM Platform{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto">
+    <!-- Verification Form -->
+    <div class="bg-white rounded-lg shadow-md p-8 mb-6">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-4">
+                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Vérifier un Certificat</h2>
+            <p class="text-gray-600">Entrez l'ID du certificat ou le code de vérification</p>
+        </div>
+
+        <form method="GET" class="space-y-4">
+            <div>
+                <label for="certificate_id" class="block text-gray-700 font-medium mb-2">ID du Certificat</label>
+                <input
+                    type="text"
+                    id="certificate_id"
+                    name="certificate_id"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="WIM-2025-XXXXX"
+                >
+            </div>
+
+            <div class="text-center text-gray-500">ou</div>
+
+            <div>
+                <label for="verification_code" class="block text-gray-700 font-medium mb-2">Code de Vérification</label>
+                <input
+                    type="text"
+                    id="verification_code"
+                    name="verification_code"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Code de 64 caractères"
+                >
+            </div>
+
+            <button
+                type="submit"
+                class="w-full px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition"
+            >
+                Vérifier le Certificat
+            </button>
+        </form>
+    </div>
+
+    <!-- Verification Result -->
+    {% if certificate %}
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-green-600 mb-2">Certificat Valide</h3>
+            <p class="text-gray-600">Ce certificat est authentique</p>
+        </div>
+
+        <div class="border-t border-b py-6 space-y-3">
+            <div class="flex justify-between">
+                <span class="text-gray-600">Titulaire :</span>
+                <span class="font-semibold text-gray-800">{{ certificate.student_name }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Cours :</span>
+                <span class="font-semibold text-gray-800">{{ certificate.course_title }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Date d'émission :</span>
+                <span class="font-semibold text-gray-800">{{ certificate.issued_at|date:"d/m/Y" }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Score final :</span>
+                <span class="font-semibold text-green-600">{{ certificate.final_score|floatformat:0 }}%</span>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="{% url 'certificates:detail' certificate.certificate_id %}" 
+               class="inline-block px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                Voir le Certificat
+            </a>
+        </div>
+    </div>
+    {% elif request.GET %}
+    <div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+        <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3 class="text-xl font-bold text-red-600 mb-2">Certificat Non Trouvé</h3>
+        <p class="text-red-700">Le certificat que vous recherchez n'existe pas ou n'est plus valide.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

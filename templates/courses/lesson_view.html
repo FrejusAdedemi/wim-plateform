@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} - {{ lesson.module.course.title }}{% endblock %}
+{% block page_title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Main Content - Lesson Video/Content -->
+    <div class="lg:col-span-3">
+        <!-- Video Player -->
+        {% if lesson.lesson_type == 'video' %}
+        <div class="bg-black rounded-lg overflow-hidden mb-6">
+            <div class="relative" style="padding-bottom: 56.25%;">
+                {% if lesson.video_url %}
+                    <iframe 
+                        class="absolute top-0 left-0 w-full h-full"
+                        src="{{ lesson.video_url }}"
+                        frameborder="0"
+                        allowfullscreen
+                    ></iframe>
+                {% else %}
+                    <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900">
+                        <div class="text-center text-white">
+                            <svg class="w-20 h-20 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-lg">Vidéo en cours de préparation</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Lesson Content -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-800">{{ lesson.title }}</h1>
+                
+                <!-- Mark Complete Button -->
+                <button 
+                    hx-post="{% url 'courses:complete_lesson' lesson.id %}"
+                    hx-swap="outerHTML"
+                    class="px-4 py-2 {% if progress.is_completed %}bg-green-500{% else %}bg-blue-500{% endif %} text-white rounded-lg hover:opacity-90 transition">
+                    {% if progress.is_completed %}
+                        ✓ Complété
+                    {% else %}
+                        Marquer comme complété
+                    {% endif %}
+                </button>
+            </div>
+
+            <!-- Lesson Description -->
+            <div class="prose max-w-none text-gray-600 mb-6">
+                {{ lesson.content|safe }}
+            </div>
+
+            <!-- Resources -->
+            {% if lesson.resources %}
+            <div class="border-t pt-6">
+                <h3 class="font-semibold text-gray-800 mb-3">Ressources</h3>
+                <div class="space-y-2">
+                    {% for resource in lesson.resources.split %}
+                    <a href="{{ resource }}" class="flex items-center text-blue-500 hover:text-blue-600">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Télécharger la ressource
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Navigation -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between">
+                {% if previous_lesson %}
+                <a href="{% url 'courses:lesson' lesson.module.course.slug previous_lesson.slug %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Leçon précédente
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+
+                {% if next_lesson %}
+                <a href="{% url 'courses:lesson' lesson.module.course.slug next_lesson.slug %}" 
+                   class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center">
+                    Leçon suivante
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar - Course Content -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-4 sticky top-24">
+            <div class="mb-4">
+                <h3 class="font-semibold text-gray-800 mb-2">Progression du cours</h3>
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                    <div class="bg-blue-500 h-2 rounded-full" style="width: {{ enrollment.progress_percentage }}%"></div>
+                </div>
+                <p class="text-sm text-gray-600">{{ enrollment.progress_percentage|floatformat:0 }}% complété</p>
+            </div>
+
+            <!-- Course Modules -->
+            <div class="border-t pt-4">
+                <h3 class="font-semibold text-gray-800 mb-3">Contenu du cours</h3>
+                
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    {% for module in modules %}
+                    <div class="border rounded">
+                        <button onclick="toggleSidebarModule({{ module.id }})" 
+                                class="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
+                            <span class="font-medium text-sm text-gray-800">{{ module.title }}</span>
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <div id="sidebar-module-{{ module.id }}" class="{% if module.id != lesson.module.id %}hidden{% endif %} px-3 pb-2">
+                            {% for l in module.lessons.all %}
+                            <a href="{% url 'courses:lesson' lesson.module.course.slug l.slug %}"
+                               class="block py-1 text-sm {% if l.id == lesson.id %}text-blue-500 font-semibold{% else %}text-gray-600{% endif %} hover:text-blue-500">
+                                {% if l.is_completed %}✓{% endif %} {{ l.title }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleSidebarModule(moduleId) {
+    const element = document.getElementById('sidebar-module-' + moduleId);
+    element.classList.toggle('hidden');
+}
+</script>
+
+{% endblock %}

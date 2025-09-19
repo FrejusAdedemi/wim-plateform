@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Paramètres - WIM Platform{% endblock %}
+{% block page_title %}Paramètres du compte{% endblock %}
+{% block page_subtitle %}Gérez vos préférences{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+    <!-- Tabs -->
+    <div class="bg-white rounded-lg shadow-md mb-6">
+        <div class="flex border-b">
+            <button onclick="showSettingsTab('account')" id="tab-account" class="settings-tab px-6 py-3 font-semibold text-blue-500 border-b-2 border-blue-500">
+                Compte
+            </button>
+            <button onclick="showSettingsTab('security')" id="tab-security" class="settings-tab px-6 py-3 font-semibold text-gray-600">
+                Sécurité
+            </button>
+            <button onclick="showSettingsTab('notifications')" id="tab-notifications" class="settings-tab px-6 py-3 font-semibold text-gray-600">
+                Notifications
+            </button>
+            <button onclick="showSettingsTab('privacy')" id="tab-privacy" class="settings-tab px-6 py-3 font-semibold text-gray-600">
+                Confidentialité
+            </button>
+        </div>
+    </div>
+
+    <!-- Account Settings -->
+    <div id="content-account" class="settings-content bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Informations du compte</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Adresse email</label>
+                    <p class="text-gray-900">{{ user.email }}</p>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Membre depuis</label>
+                    <p class="text-gray-600">{{ user.date_joined|date:"d F Y" }}</p>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Type de compte</label>
+                    <p class="text-gray-900">
+                        {% if user.is_instructor %}
+                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-semibold">Instructeur</span>
+                        {% else %}
+                            <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold">Étudiant</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-t pt-6">
+                <h3 class="font-semibold text-gray-800 mb-4">Actions du compte</h3>
+                <div class="space-y-3">
+                    <button type="button" class="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition">
+                        Désactiver le compte
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Security Settings -->
+    <div id="content-security" class="settings-content hidden bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Sécurité</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Change Password -->
+            <div class="mb-6">
+                <h3 class="font-semibold text-gray-800 mb-4">Changer le mot de passe</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Mot de passe actuel</label>
+                        <input type="password" name="current_password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Nouveau mot de passe</label>
+                        <input type="password" name="new_password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Confirmer le nouveau mot de passe</label>
+                        <input type="password" name="confirm_password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        Mettre à jour le mot de passe
+                    </button>
+                </div>
+            </div>
+
+            <!-- Two Factor Authentication -->
+            <div class="border-t pt-6">
+                <h3 class="font-semibold text-gray-800 mb-4">Authentification à deux facteurs</h3>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Authentification 2FA</p>
+                        <p class="text-sm text-gray-600">Ajouter une couche de sécurité supplémentaire</p>
+                    </div>
+                    <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        Activer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Notifications Settings -->
+    <div id="content-notifications" class="settings-content hidden bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Notifications</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Nouveaux cours</p>
+                        <p class="text-sm text-gray-600">Être notifié des nouveaux cours disponibles</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Progression de cours</p>
+                        <p class="text-sm text-gray-600">Mises à jour sur votre progression</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Certificats</p>
+                        <p class="text-sm text-gray-600">Notification lors de l'obtention de certificats</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Newsletter</p>
+                        <p class="text-sm text-gray-600">Recevoir notre newsletter hebdomadaire</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    Enregistrer les préférences
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Privacy Settings -->
+    <div id="content-privacy" class="settings-content hidden bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Confidentialité</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="space-y-4 mb-6">
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Profil public</p>
+                        <p class="text-sm text-gray-600">Autoriser les autres à voir votre profil</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Afficher mes cours</p>
+                        <p class="text-sm text-gray-600">Montrer les cours que vous suivez</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Afficher mes certificats</p>
+                        <p class="text-sm text-gray-600">Rendre vos certificats publics</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="border-t pt-6">
+                <h3 class="font-semibold text-gray-800 mb-4">Données personnelles</h3>
+                <div class="space-y-3">
+                    <button type="button" class="px-4 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50">
+                        Télécharger mes données
+                    </button>
+                    <button type="button" class="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50">
+                        Supprimer mes données
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showSettingsTab(tab) {
+    // Hide all content
+    document.querySelectorAll('.settings-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    // Remove active state
+    document.querySelectorAll('.settings-tab').forEach(button => {
+        button.classList.remove('text-blue-500', 'border-b-2', 'border-blue-500');
+        button.classList.add('text-gray-600');
+    });
+
+    // Show selected content
+    document.getElementById('content-' + tab).classList.remove('hidden');
+
+    // Add active state
+    const activeTab = document.getElementById('tab-' + tab);
+    activeTab.classList.remove('text-gray-600');
+    activeTab.classList.add('text-blue-500', 'border-b-2', 'border-blue-500');
+}
+</script>
+
+{% endblock %}

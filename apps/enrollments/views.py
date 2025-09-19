@@ -168,7 +168,7 @@ def toggle_favorite(request, enrollment_id):
     enrollment.save()
 
     if request.htmx:
-        return render(request, 'enrollments/partials/favorite_button.html', {
+        return render(request, 'enrollments/enrollments/favorite_button.html', {
             'enrollment': enrollment
         })
 

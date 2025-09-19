@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil - {{ user.name }} | WIM Platform{% endblock %}
+{% block page_title %}Profil utilisateur{% endblock %}
+{% block page_subtitle %}{{ user.name }}{% endblock %}
+
+{% block content %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Sidebar - User Info -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <!-- Avatar -->
+            <div class="text-center mb-6">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="{{ user.name }}" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-500">
+                {% else %}
+                    <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center border-4 border-white shadow-lg">
+                        <span class="text-white text-4xl font-bold">{{ user.name|first }}</span>
+                    </div>
+                {% endif %}
+                
+                <h2 class="text-2xl font-bold text-gray-800">{{ user.name }}</h2>
+                <p class="text-gray-600">{{ user.email }}</p>
+                
+                {% if user.location %}
+                <p class="text-sm text-gray-500 mt-2">
+                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    {{ user.location }}
+                </p>
+                {% endif %}
+            </div>
+            
+            <!-- Bio -->
+            {% if user.bio %}
+            <div class="border-t pt-4 mb-6">
+                <h3 class="font-semibold text-gray-800 mb-2">À propos</h3>
+                <p class="text-gray-600 text-sm">{{ user.bio }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Stats -->
+            <div class="border-t pt-4">
+                <h3 class="font-semibold text-gray-800 mb-4">Statistiques</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Cours en cours</span>
+                        <span class="font-semibold text-blue-500">{{ stats.active_courses }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Cours terminés</span>
+                        <span class="font-semibold text-green-500">{{ stats.completed_courses }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Certificats</span>
+                        <span class="font-semibold text-yellow-500">{{ stats.certificates }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Temps d'étude</span>
+                        <span class="font-semibold text-purple-500">{{ stats.study_hours }}h</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Button -->
+            {% if request.user == user %}
+            <div class="border-t pt-4 mt-4">
+                <a href="{% url 'users:edit_profile' %}" 
+                   class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-center block">
+                    Modifier le profil
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="lg:col-span-2">
+        <!-- Activity Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Activité récente</h2>
+            
+            <div class="space-y-4">
+                {% for activity in recent_activities %}
+                <div class="flex items-start space-x-4 pb-4 border-b last:border-b-0">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800">{{ activity.description }}</p>
+                        <p class="text-xs text-gray-500">{{ activity.timestamp|timesince }} ago</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-gray-500 py-4">Aucune activité récente</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Courses in Progress -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Cours en cours</h2>
+                <a href="{% url 'enrollments:my-courses' %}" class="text-blue-500 hover:text-blue-600 text-sm font-medium">
+                    Voir tout →
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for enrollment in active_courses %}
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">{{ enrollment.course.title }}</h3>
+                    <div class="mb-2">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Progression</span>
+                            <span class="font-semibold text-blue-500">{{ enrollment.progress_percentage|floatformat:0 }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: {{ enrollment.progress_percentage }}%"></div>
+                        </div>
+                    </div>
+                    <a href="{% url 'courses:detail' enrollment.course.slug %}" 
+                       class="text-sm text-blue-500 hover:text-blue-600">
+                        Continuer →
+                    </a>
+                </div>
+                {% empty %}
+                <div class="col-span-2 text-center py-4">
+                    <p class="text-gray-500">Aucun cours en cours</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Achievements -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Accomplissements</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="text-3xl mb-2">🏆</div>
+                    <p class="text-sm font-semibold text-gray-800">Premier cours</p>
+                    <p class="text-xs text-gray-600">Terminé</p>
+                </div>
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-3xl mb-2">📚</div>
+                    <p class="text-sm font-semibold text-gray-800">Étudiant assidu</p>
+                    <p class="text-xs text-gray-600">7 jours d'affilée</p>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <div class="text-3xl mb-2">🎯</div>
+                    <p class="text-sm font-semibold text-gray-800">Quiz master</p>
+                    <p class="text-xs text-gray-600">100% de réussite</p>
+                </div>
+                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                    <div class="text-3xl mb-2">⭐</div>
+                    <p class="text-sm font-semibold text-gray-800">Expert</p>
+                    <p class="text-xs text-gray-600">5 certificats</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

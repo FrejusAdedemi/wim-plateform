@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load math_filters %}
+
+{% block title %}Statistiques - WIM Platform{% endblock %}
+{% block page_title %}Statistiques Détaillées{% endblock %}
+{% block page_subtitle %}Analyse de votre activité d'apprentissage{% endblock %}
+
+{% block content %}
+
+<!-- Overview Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm">Temps Total</p>
+                <p class="text-3xl font-bold mt-1">{{ stats.total_study_time|div:3600|floatformat:0 }}h</p>
+            </div>
+            <svg class="w-12 h-12 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm">Cours Complétés</p>
+                <p class="text-3xl font-bold mt-1">{{ stats.total_courses_completed }}</p>
+            </div>
+            <svg class="w-12 h-12 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm">Leçons Vues</p>
+                <p class="text-3xl font-bold mt-1">{{ stats.total_lessons_completed }}</p>
+            </div>
+            <svg class="w-12 h-12 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-orange-100 text-sm">Série Actuelle</p>
+                <p class="text-3xl font-bold mt-1">{{ stats.current_streak_days }} jours</p>
+            </div>
+            <svg class="w-12 h-12 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Study Time Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Temps d'étude (7 derniers jours)</h2>
+        <div class="h-64 flex items-end justify-between">
+            {% for day in last_7_days %}
+            <div class="flex flex-col items-center flex-1 mx-1">
+                <div class="w-full bg-blue-500 rounded-t hover:bg-blue-600 transition-all cursor-pointer" 
+                     style="height: {{ day.minutes|mul:0.5 }}px; min-height: 10px;"
+                     title="{{ day.minutes }} minutes">
+                </div>
+                <span class="text-xs text-gray-500 mt-2">{{ day.date|date:"D" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Category Distribution -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Répartition par Catégorie</h2>
+        <div class="space-y-3">
+            {% for category in category_stats %}
+            <div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-600">{{ category.name }}</span>
+                    <span class="font-semibold">{{ category.percentage }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full" 
+                         style="width: {{ category.percentage }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Métriques de Performance</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <p class="text-gray-600 mb-2">Score Moyen Quiz</p>
+            <p class="text-3xl font-bold text-green-600">{{ stats.average_quiz_score|floatformat:0 }}%</p>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <p class="text-gray-600 mb-2">Taux de Complétion</p>
+            <p class="text-3xl font-bold text-blue-600">{{ stats.completion_rate|floatformat:0 }}%</p>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <p class="text-gray-600 mb-2">Temps Moyen/Jour</p>
+            <p class="text-3xl font-bold text-purple-600">{{ stats.avg_daily_time|floatformat:0 }}min</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -89,7 +89,7 @@ def update_profile(request):
         messages.success(request, 'Profil mis à jour!')
 
         if request.htmx:
-            return render(request, 'users/partials/profile_updated.html', {
+            return render(request, 'users/enrollments/profile_updated.html', {
                 'user': user
             })
 

@@ -118,7 +118,7 @@ def user_statistics(request):
     }
 
     if request.htmx:
-        return render(request, 'progress/partials/statistics.html', {
+        return render(request, 'progress/enrollments/statistics.html', {
             'stats': stats_data
         })
 

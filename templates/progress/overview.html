@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load math_filters %}
+
+{% block title %}Ma Progression - WIM Platform{% endblock %}
+{% block page_title %}Ma Progression{% endblock %}
+{% block page_subtitle %}Suivez votre évolution{% endblock %}
+
+{% block content %}
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Leçons complétées</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_lessons_completed }}</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Temps d'étude</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_study_hours }}h</p>
+            </div>
+            <div class="bg-blue-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Série de jours</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ current_streak }}</p>
+            </div>
+            <div class="bg-orange-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Points XP</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_xp }}</p>
+            </div>
+            <div class="bg-purple-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Chart -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Activité mensuelle</h2>
+    
+    <div class="grid grid-cols-7 gap-2">
+        {% for week in calendar_data %}
+            {% for day in week %}
+            <div class="text-center">
+                <div class="text-xs text-gray-500 mb-1">{{ day.weekday }}</div>
+                <div class="w-12 h-12 rounded-lg {% if day.has_activity %}bg-green-500{% else %}bg-gray-100{% endif %} flex items-center justify-center">
+                    <span class="text-xs font-semibold {% if day.has_activity %}text-white{% else %}text-gray-400{% endif %}">
+                        {{ day.lessons_count }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Course Progress -->
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Progression par cours</h2>
+    
+    <div class="space-y-4">
+        {% for enrollment in enrollments %}
+        <div class="border rounded-lg p-4">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-800">{{ enrollment.course.title }}</h3>
+                    <p class="text-sm text-gray-600">{{ enrollment.course.category.name }}</p>
+                </div>
+                <a href="{% url 'progress:course_progress' enrollment.course.id %}" 
+                   class="text-blue-500 hover:text-blue-600 text-sm">
+                    Détails →
+                </a>
+            </div>
+            
+            <div class="mb-2">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-600">Progression</span>
+                    <span class="font-semibold text-blue-500">{{ enrollment.progress_percentage|floatformat:0 }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-blue-500 h-3 rounded-full transition-all" style="width: {{ enrollment.progress_percentage }}%"></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Leçons</p>
+                    <p class="font-semibold">{{ enrollment.completed_lessons }}/{{ enrollment.total_lessons }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Temps passé</p>
+                    <p class="font-semibold">{{ enrollment.total_time_spent|div:3600|floatformat:1 }}h</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Dernier accès</p>
+                    <p class="font-semibold">{{ enrollment.last_accessed|date:"d/m" }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-8">
+            <p class="text-gray-500">Aucun cours en cours</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

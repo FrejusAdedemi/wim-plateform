@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificat - {{ certificate.course.title }}{% endblock %}
+{% block page_title %}Certificat de Réussite{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+    <!-- Certificate Preview -->
+    <div class="bg-white rounded-lg shadow-xl p-8 mb-6">
+        <div class="border-8 border-double border-yellow-400 rounded-lg p-8">
+            <!-- Certificate Header -->
+            <div class="text-center mb-8">
+                <div class="inline-block bg-yellow-100 rounded-full p-4 mb-4">
+                    <svg class="w-16 h-16 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">Certificat de Réussite</h1>
+                <p class="text-lg text-gray-600">WIM Platform</p>
+            </div>
+
+            <!-- Certificate Body -->
+            <div class="text-center mb-8">
+                <p class="text-lg text-gray-600 mb-4">Ce certificat est décerné à</p>
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">{{ certificate.student_name }}</h2>
+                
+                <p class="text-lg text-gray-600 mb-2">Pour avoir complété avec succès le cours</p>
+                <h3 class="text-2xl font-semibold text-blue-600 mb-6">{{ certificate.course_title }}</h3>
+                
+                <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Date de complétion</p>
+                        <p class="font-semibold text-gray-800">{{ certificate.completion_date|date:"d F Y" }}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Score final</p>
+                        <p class="font-semibold text-green-600">{{ certificate.final_score|floatformat:0 }}%</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Instructeur</p>
+                        <p class="font-semibold text-gray-800">{{ certificate.instructor_name }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certificate Footer -->
+            <div class="border-t border-gray-300 pt-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-600">ID du certificat</p>
+                        <p class="font-mono font-semibold text-gray-800">{{ certificate.certificate_id }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Date d'émission</p>
+                        <p class="font-semibold text-gray-800">{{ certificate.issued_at|date:"d F Y" }}</p>
+                    </div>
+                    <div>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" 
+                             alt="QR Code" class="w-20 h-20 bg-gray-200 rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex flex-wrap gap-4">
+            <a href="{% url 'certificates:download' certificate.certificate_id %}" 
+               class="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-center">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Télécharger PDF
+            </a>
+            
+            <button onclick="shareCertificate()" 
+                    class="flex-1 px-6 py-3 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition text-center">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+                Partager
+            </button>
+            
+            <button onclick="window.print()" 
+                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Imprimer
+            </button>
+        </div>
+    </div>
+
+    <!-- Verification -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div class="flex items-start">
+            <svg class="w-6 h-6 text-blue-500 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+            <div>
+                <h3 class="font-semibold text-blue-800 mb-2">Certificat Authentifié</h3>
+                <p class="text-blue-700 text-sm">
+                    Ce certificat peut être vérifié en ligne à l'adresse :<br>
+                    <span class="font-mono">{{ request.build_absolute_uri }}</span>
+                </p>
+                <p class="text-blue-700 text-sm mt-2">
+                    Code de vérification : <span class="font-mono font-semibold">{{ certificate.verification_code|truncatechars:20 }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function shareCertificate() {
+    const shareData = {
+        title: 'Certificat - {{ certificate.course_title }}',
+        text: 'J\'ai obtenu mon certificat pour {{ certificate.course_title }} sur WIM Platform!',
+        url: window.location.href
+    };
+    
+    if (navigator.share) {
+        navigator.share(shareData);
+    } else {
+        // Fallback - copier le lien
+        navigator.clipboard.writeText(window.location.href);
+        alert('Lien copié dans le presse-papier!');
+    }
+}
+</script>
+
+<style>
+@media print {
+    .no-print { display: none; }
+}
+</style>
+
+{% endblock %}

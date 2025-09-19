@@ -9,7 +9,6 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Avg, Sum, Q
 from django.utils import timezone
-from django.http import JsonResponse
 from datetime import timedelta
 
 from apps.enrollments.models import Enrollment
@@ -21,6 +20,7 @@ from apps.certificates.models import Certificate
 class DashboardView(LoginRequiredMixin, TemplateView):
     """Vue principale du dashboard"""
     template_name = 'dashboard/index.html'
+    login_url = '/auth/login/'  # URL de redirection si non connecté
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -29,25 +29,29 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # Statistiques principales
         enrollments = Enrollment.objects.filter(user=user, is_active=True)
 
+        # Calculer le temps d'étude total (en heures)
+        total_seconds = sum([e.total_time_spent for e in enrollments]) if enrollments.exists() else 0
+        total_hours = round(total_seconds / 3600, 1) if total_seconds > 0 else 0
+
         # Calculer la progression moyenne
         if enrollments.exists():
-            avg_progress = sum(e.progress_percentage for e in enrollments) / enrollments.count()
+            avg_progress = enrollments.aggregate(Avg('progress_percentage'))['progress_percentage__avg'] or 0
+            avg_progress = round(avg_progress, 1)
         else:
             avg_progress = 0
 
-        # Récupérer le temps d'étude total
-        try:
-            stats = UserStatistics.objects.get(user=user)
-            total_hours = stats.total_study_time
-        except UserStatistics.DoesNotExist:
-            total_hours = 0
+        # Compter les certificats
+        certificates_count = Certificate.objects.filter(user=user, is_valid=True).count()
+
+        # Compter les cours complétés
+        completed_count = enrollments.filter(is_completed=True).count()
 
         context.update({
             'active_courses_count': enrollments.count(),
-            'completed_courses_count': enrollments.filter(is_completed=True).count(),
-            'certificates_count': Certificate.objects.filter(user=user).count(),
+            'completed_courses_count': completed_count,
+            'certificates_count': certificates_count,
             'total_study_hours': total_hours,
-            'average_progress': round(avg_progress, 1),
+            'average_progress': avg_progress,
 
             # Cours récents
             'recent_courses': self.get_recent_courses(user),
@@ -66,56 +70,75 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_recent_courses(self, user, limit=6):
         """Récupérer les cours récemment consultés"""
-        return Enrollment.objects.filter(
-            user=user,
-            is_active=True
-        ).select_related('course', 'course__category').order_by('-last_accessed')[:limit]
+        try:
+            enrollments = Enrollment.objects.filter(
+                user=user,
+                is_active=True
+            ).select_related('course', 'course__category').order_by('-last_accessed')[:limit]
+            return enrollments
+        except Exception as e:
+            print(f"Erreur get_recent_courses: {e}")
+            return []
 
     def get_recommended_courses(self, user, limit=4):
         """Cours recommandés basés sur les catégories des cours suivis"""
-        # Catégories des cours actuels
-        enrolled_categories = Enrollment.objects.filter(
-            user=user
-        ).values_list('course__category', flat=True)
+        try:
+            # Catégories des cours actuels
+            enrolled_categories = Enrollment.objects.filter(
+                user=user
+            ).values_list('course__category', flat=True).distinct()
 
-        if not enrolled_categories:
-            # Si pas de cours, retourner les cours populaires
+            if not enrolled_categories:
+                # Si pas de cours, recommander les cours populaires
+                return Course.objects.filter(
+                    is_published=True
+                ).order_by('-total_students')[:limit]
+
+            # Cours recommandés dans les mêmes catégories
             return Course.objects.filter(
+                category__in=enrolled_categories,
                 is_published=True
+            ).exclude(
+                enrollments__user=user
             ).order_by('-rating', '-total_students')[:limit]
-
-        # Cours recommandés dans les mêmes catégories
-        return Course.objects.filter(
-            category__in=enrolled_categories,
-            is_published=True
-        ).exclude(
-            enrollments__user=user
-        ).order_by('-rating', '-total_students')[:limit]
+        except Exception as e:
+            print(f"Erreur get_recommended_courses: {e}")
+            return []
 
     def get_recent_activity(self, user, days=7):
         """Activité récente (leçons complétées)"""
-        since_date = timezone.now() - timedelta(days=days)
-        return LessonProgress.objects.filter(
-            enrollment__user=user,
-            is_completed=True,
-            completed_at__gte=since_date
-        ).select_related('lesson', 'lesson__module').order_by('-completed_at')[:10]
+        try:
+            since_date = timezone.now() - timedelta(days=days)
+            activities = LessonProgress.objects.filter(
+                enrollment__user=user,
+                is_completed=True,
+                completed_at__gte=since_date
+            ).select_related('lesson', 'lesson__module', 'lesson__module__course').order_by('-completed_at')[:10]
+            return activities
+        except Exception as e:
+            print(f"Erreur get_recent_activity: {e}")
+            return []
 
     def get_weekly_progress(self, user):
         """Progression sur 7 jours"""
-        progress_data = []
-        for i in range(7):
-            date = timezone.now().date() - timedelta(days=6 - i)
-            completed = LessonProgress.objects.filter(
-                enrollment__user=user,
-                is_completed=True,
-                completed_at__date=date
-            ).count()
-            progress_data.append({
-                'date': date,
-                'count': completed
-            })
-        return progress_data
+        try:
+            progress_data = []
+            for i in range(7):
+                date = timezone.now().date() - timedelta(days=6 - i)
+                completed = LessonProgress.objects.filter(
+                    enrollment__user=user,
+                    is_completed=True,
+                    completed_at__date=date
+                ).count()
+                progress_data.append({
+                    'date': date,
+                    'count': completed
+                })
+            return progress_data
+        except Exception as e:
+            print(f"Erreur get_weekly_progress: {e}")
+            # Retourner des données vides en cas d'erreur
+            return [{'date': timezone.now().date(), 'count': 0} for _ in range(7)]
 
 
 @login_required
@@ -123,22 +146,25 @@ def search_courses(request):
     """Recherche de cours en temps réel avec HTMX"""
     query = request.GET.get('q', '').strip()
 
-    if query:
-        courses = Course.objects.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(tags__name__icontains=query),
-            is_published=True
-        ).distinct()[:12]
-    else:
-        courses = Course.objects.filter(is_published=True)[:12]
+    try:
+        if query:
+            courses = Course.objects.filter(
+                Q(title__icontains=query) |
+                Q(description__icontains=query),
+                is_published=True
+            ).distinct()[:12]
+        else:
+            courses = Course.objects.filter(is_published=True).order_by('-created_at')[:12]
 
-    if request.htmx:
-        return render(request, 'dashboard/partials/course_grid.html', {
-            'courses': courses
-        })
+        if request.htmx:
+            return render(request, 'dashboard/partials/course_grid.html', {
+                'courses': courses
+            })
 
-    return render(request, 'dashboard/index.html', {'courses': courses})
+        return render(request, 'dashboard/index.html', {'courses': courses})
+    except Exception as e:
+        print(f"Erreur search_courses: {e}")
+        return render(request, 'dashboard/partials/course_grid.html', {'courses': []})
 
 
 @login_required
@@ -147,56 +173,58 @@ def filter_courses(request):
     category = request.GET.get('category')
     difficulty = request.GET.get('difficulty')
 
-    courses = Course.objects.filter(is_published=True)
+    try:
+        courses = Course.objects.filter(is_published=True)
 
-    if category:
-        courses = courses.filter(category__slug=category)
+        if category:
+            courses = courses.filter(category__slug=category)
 
-    if difficulty:
-        courses = courses.filter(difficulty=difficulty)
+        if difficulty:
+            courses = courses.filter(difficulty=difficulty)
 
-    courses = courses.order_by('-rating')[:12]
+        courses = courses.order_by('-rating')[:12]
 
-    if request.htmx:
-        return render(request, 'dashboard/partials/course_grid.html', {
-            'courses': courses
-        })
+        if request.htmx:
+            return render(request, 'dashboard/partials/course_grid.html', {
+                'courses': courses
+            })
 
-    return redirect('dashboard:index')
+        return redirect('dashboard:index')
+    except Exception as e:
+        print(f"Erreur filter_courses: {e}")
+        return redirect('dashboard:index')
 
 
 @login_required
 def user_stats(request):
-    """Statistiques utilisateur pour HTMX"""
+    """Statistiques détaillées de l'utilisateur"""
     user = request.user
 
-    enrollments = Enrollment.objects.filter(user=user, is_active=True)
-
-    # Calculer progression moyenne
-    if enrollments.exists():
-        avg_progress = sum(e.progress_percentage for e in enrollments) / enrollments.count()
-    else:
-        avg_progress = 0
-
-    # Temps d'étude
     try:
-        stats = UserStatistics.objects.get(user=user)
-        study_hours = stats.total_study_time
-    except UserStatistics.DoesNotExist:
-        study_hours = 0
+        # Récupérer ou créer les statistiques
+        stats, created = UserStatistics.objects.get_or_create(
+            user=user,
+            defaults={
+                'total_courses_enrolled': 0,
+                'total_courses_completed': 0,
+                'total_lessons_completed': 0,
+                'total_study_time': 0,
+            }
+        )
 
-    stats_data = {
-        'total_courses': enrollments.count(),
-        'completed_courses': enrollments.filter(is_completed=True).count(),
-        'certificates': Certificate.objects.filter(user=user).count(),
-        'study_hours': study_hours,
-        'average_progress': round(avg_progress, 1),
-    }
+        context = {
+            'stats': stats,
+            'enrollments': Enrollment.objects.filter(user=user, is_active=True),
+        }
 
-    if request.htmx:
-        return render(request, 'dashboard/partials/user_stats.html', {'stats': stats_data})
-
-    return JsonResponse(stats_data)
+        return render(request, 'dashboard/stats.html', context)
+    except Exception as e:
+        print(f"Erreur user_stats: {e}")
+        context = {
+            'stats': None,
+            'enrollments': [],
+        }
+        return render(request, 'dashboard/stats.html', context)
 
 
 # Gestionnaires d'erreurs personnalisés
