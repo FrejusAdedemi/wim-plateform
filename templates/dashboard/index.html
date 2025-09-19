@@ -1,286 +1,467 @@
-{% extends 'base.html' %}
 {% load math_filters %}
+{% load static %}
 
-{% block title %}Dashboard - WIM Platform{% endblock %}
-{% block page_title %}Tableau de bord{% endblock %}
-{% block page_subtitle %}Bienvenue {{ user.get_full_name }}{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - WIM Platform</title>
 
-{% block content %}
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Active Courses -->
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm font-medium">Cours actifs</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ active_courses_count }}</p>
-            </div>
-            <div class="bg-blue-100 rounded-full p-3">
-                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Progression -->
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm font-medium">Progression moyenne</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ average_progress }}%</p>
-            </div>
-            <div class="bg-green-100 rounded-full p-3">
-                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
-    <!-- Study Time -->
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm font-medium">Temps d'étude</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_study_hours }}h</p>
-            </div>
-            <div class="bg-purple-100 rounded-full p-3">
-                <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,1));
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 antialiased">
 
-    <!-- Certificates -->
-    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm font-medium">Certificats obtenus</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ certificates_count }}</p>
-            </div>
-            <div class="bg-yellow-100 rounded-full p-3">
-                <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
-</div>
+    <div class="flex min-h-screen">
 
-<!-- Search and Filters -->
-<div class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
-            <input
-                type="text"
-                placeholder="Rechercher un cours..."
-                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                hx-get="{% url 'dashboard:search' %}"
-                hx-trigger="keyup changed delay:500ms"
-                hx-target="#courses-grid"
-                hx-indicator="#search-loading"
-                name="q"
-            >
-        </div>
-
-        <select
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            hx-get="{% url 'dashboard:filter' %}"
-            hx-trigger="change"
-            hx-target="#courses-grid"
-            name="category"
-        >
-            <option value="">Toutes les catégories</option>
-            <option value="dev">Développement</option>
-            <option value="design">Design</option>
-            <option value="data">Data Science</option>
-            <option value="backend">Backend</option>
-        </select>
-
-        <select
-            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            hx-get="{% url 'dashboard:filter' %}"
-            hx-trigger="change"
-            hx-target="#courses-grid"
-            name="difficulty"
-        >
-            <option value="">Toutes difficultés</option>
-            <option value="beginner">Débutant</option>
-            <option value="intermediate">Intermédiaire</option>
-            <option value="advanced">Avancé</option>
-        </select>
-    </div>
-
-    <div id="search-loading" class="htmx-indicator mt-4 text-center text-gray-500">
-        <span>Recherche en cours...</span>
-    </div>
-</div>
-
-<!-- My Courses Section -->
-<div class="mb-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-800">Mes cours en cours</h2>
-        <a href="{% url 'enrollments:my-courses' %}" class="text-blue-500 hover:text-blue-600 font-medium">Voir tout →</a>
-    </div>
-
-    <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for enrollment in recent_courses %}
-        <div class="course-card bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="relative">
-                {% if enrollment.course.image %}
-                    <img src="{{ enrollment.course.image.url }}" alt="{{ enrollment.course.title }}" class="w-full h-48 object-cover">
-                {% else %}
-                    <div class="w-full h-48 bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
-                        <span class="text-white text-4xl font-bold">{{ enrollment.course.title|first }}</span>
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-white shadow-2xl fixed h-screen overflow-y-auto border-r border-gray-100">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span class="text-white font-bold text-xl">W</span>
                     </div>
-                {% endif %}
-                {% if enrollment.course.is_new %}
-                <span class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-semibold">NOUVEAU</span>
-                {% endif %}
-            </div>
-
-            <div class="p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold text-gray-500 uppercase">{{ enrollment.course.category.name }}</span>
-                    <span class="text-xs text-gray-500">{{ enrollment.course.duration }} min</span>
-                </div>
-
-                <h3 class="font-bold text-gray-800 mb-2 line-clamp-2">{{ enrollment.course.title }}</h3>
-                <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ enrollment.course.description }}</p>
-
-                <!-- Progress Bar -->
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">Progression</span>
-                        <span class="font-semibold text-blue-500">{{ enrollment.progress_percentage|floatformat:0 }}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="progress-bar bg-blue-500 h-2 rounded-full" style="width: {{ enrollment.progress_percentage }}%"></div>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-1">
-                        {% for i in "12345" %}
-                        <svg class="w-4 h-4 {% if forloop.counter <= enrollment.course.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                        </svg>
-                        {% endfor %}
-                    </div>
-                    <a href="{% url 'courses:detail' enrollment.course.slug %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                        Continuer
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-span-3 text-center py-12">
-            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-            <p class="text-gray-500 mb-4">Vous n'êtes inscrit à aucun cours pour le moment.</p>
-            <a href="{% url 'courses:list' %}" class="inline-block px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                Explorer les cours
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- Recommended Courses -->
-{% if recommended_courses %}
-<div class="mb-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-800">Cours recommandés</h2>
-        <a href="{% url 'courses:list' %}" class="text-blue-500 hover:text-blue-600 font-medium">Voir tout →</a>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {% for course in recommended_courses %}
-        <div class="course-card bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="relative">
-                {% if course.image %}
-                    <img src="{{ course.image.url }}" alt="{{ course.title }}" class="w-full h-32 object-cover">
-                {% else %}
-                    <div class="w-full h-32 bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
-                        <span class="text-white text-2xl font-bold">{{ course.title|first }}</span>
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="p-3">
-                <h3 class="font-bold text-gray-800 mb-1 text-sm line-clamp-2">{{ course.title }}</h3>
-                <p class="text-xs text-gray-600 mb-2 line-clamp-1">{{ course.category.name }}</p>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-1">
-                        {% for i in "12345" %}
-                        <svg class="w-3 h-3 {% if forloop.counter <= course.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                        </svg>
-                        {% endfor %}
-                    </div>
-                    <a href="{% url 'courses:detail' course.slug %}" class="text-xs text-blue-500 hover:text-blue-600 font-medium">
-                        Voir →
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Recent Activity -->
-{% if recent_activity %}
-<div class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <h2 class="text-xl font-bold text-gray-800 mb-6">Activité récente</h2>
-
-    <div class="space-y-4">
-        {% for progress in recent_activity %}
-        <div class="flex items-center space-x-4 pb-4 border-b last:border-b-0">
-            <div class="flex-shrink-0">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-            </div>
-            <div class="flex-1">
-                <p class="text-sm font-medium text-gray-800">{{ progress.lesson.title }}</p>
-                <p class="text-xs text-gray-500">{{ progress.lesson.module.course.title }}</p>
-            </div>
-            <div class="text-xs text-gray-400">
-                {{ progress.completed_at|date:"d/m" }}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Weekly Activity Chart -->
-<div class="bg-white rounded-lg shadow-md p-6">
-    <h2 class="text-xl font-bold text-gray-800 mb-6">Activité de la semaine</h2>
-
-    <div class="flex items-end justify-between h-48">
-        {% for day in weekly_progress %}
-        <div class="flex flex-col items-center flex-1">
-            <div class="w-full flex items-end justify-center" style="height: 150px;">
-                <div class="w-12 bg-blue-500 rounded-t hover:bg-blue-600 transition-all cursor-pointer relative group"
-                     style="height: {% if day.count > 0 %}{{ day.count|mul:30 }}%{% else %}5%{% endif %}">
-                    <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        {{ day.count }} leçon{{ day.count|pluralize }}
+                    <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        WIM Platform
                     </span>
                 </div>
             </div>
-            <span class="text-xs text-gray-500 mt-2">{{ day.date|date:"D" }}</span>
-        </div>
-        {% endfor %}
-    </div>
-</div>
 
-{% endblock %}
+            <!-- User Profile -->
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-lg font-bold">{{ user.name|first }}</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">{{ user.name|truncatechars:15 }}</p>
+                        <p class="text-xs text-gray-500">{{ user.email|truncatechars:20 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="p-4">
+                <a href="{% url 'dashboard:index' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="font-semibold">Dashboard</span>
+                </a>
+
+                <a href="{% url 'courses:list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-300 mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span class="font-medium">Tous les cours</span>
+                </a>
+
+                <a href="{% url 'enrollments:my-courses' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-300 mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span class="font-medium">Mes cours</span>
+                </a>
+
+                <a href="{% url 'progress:overview' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-300 mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span class="font-medium">Ma progression</span>
+                </a>
+
+                <a href="{% url 'certificates:gallery' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-300 mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                    <span class="font-medium">Certificats</span>
+                </a>
+            </nav>
+
+            <!-- Logout -->
+            <div class="absolute bottom-0 w-full p-4 border-t border-gray-100">
+                <a href="{% url 'authentication:logout' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span class="font-medium">Déconnexion</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="ml-64 flex-1">
+
+            <!-- HEADER -->
+            <header class="bg-white shadow-sm sticky top-0 z-10 border-b border-gray-100">
+                <div class="px-8 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">Bienvenue, {{ user.get_full_name }} 👋</h1>
+                            <p class="text-gray-600 text-sm mt-1">Continuez votre apprentissage aujourd'hui</p>
+                        </div>
+
+                        <div class="flex items-center space-x-4">
+                            <!-- Notifications -->
+                            <button class="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+
+                            <!-- User Avatar -->
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold">{{ user.name|first }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENT -->
+            <main class="p-8">
+
+                <!-- STATISTICS CARDS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+                    <!-- Card 1 - Cours Actifs -->
+                    <div class="stat-card rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-blue-100 rounded-xl">
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full">+12%</span>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium mb-1">Cours Actifs</h3>
+                        <p class="text-3xl font-bold text-gray-900">{{ active_courses_count }}</p>
+                    </div>
+
+                    <!-- Card 2 - Progression -->
+                    <div class="stat-card rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-green-100 rounded-xl">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">{{ average_progress }}%</span>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium mb-1">Progression Moyenne</h3>
+                        <p class="text-3xl font-bold text-gray-900">{{ average_progress }}%</p>
+                    </div>
+
+                    <!-- Card 3 - Temps d'étude -->
+                    <div class="stat-card rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-purple-100 rounded-xl">
+                                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">Cette semaine</span>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium mb-1">Temps d'étude</h3>
+                        <p class="text-3xl font-bold text-gray-900">{{ total_study_hours }}h</p>
+                    </div>
+
+                    <!-- Card 4 - Certificats -->
+                    <div class="stat-card rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-yellow-100 rounded-xl">
+                                <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-semibold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">Nouveau!</span>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium mb-1">Certificats</h3>
+                        <p class="text-3xl font-bold text-gray-900">{{ certificates_count }}</p>
+                    </div>
+                </div>
+
+                <!-- SEARCH BAR -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex-1 relative">
+                            <input
+                                type="text"
+                                placeholder="Rechercher un cours..."
+                                class="w-full px-6 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                hx-get="{% url 'dashboard:search' %}"
+                                hx-trigger="keyup changed delay:500ms"
+                                hx-target="#courses-grid"
+                                hx-indicator="#search-loading"
+                                name="q"
+                            >
+                            <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+
+                        <select class="px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" hx-get="{% url 'dashboard:filter' %}" hx-trigger="change" hx-target="#courses-grid" name="category">
+                            <option value="">Toutes catégories</option>
+                            <option value="dev">Développement</option>
+                            <option value="design">Design</option>
+                            <option value="data">Data Science</option>
+                        </select>
+
+                        <select class="px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" hx-get="{% url 'dashboard:filter' %}" hx-trigger="change" hx-target="#courses-grid" name="difficulty">
+                            <option value="">Toutes difficultés</option>
+                            <option value="beginner">Débutant</option>
+                            <option value="intermediate">Intermédiaire</option>
+                            <option value="advanced">Avancé</option>
+                        </select>
+                    </div>
+
+                    <div id="search-loading" class="htmx-indicator mt-4 text-center text-gray-500">
+                        <span>Recherche en cours...</span>
+                    </div>
+                </div>
+
+                <!-- MY COURSES SECTION -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Mes cours en cours</h2>
+                        <a href="{% url 'enrollments:my-courses' %}" class="text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-2 group">
+                            <span>Voir tout</span>
+                            <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for enrollment in recent_courses %}
+                        <div class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                            <!-- Image -->
+                            <div class="relative h-48 overflow-hidden">
+                                {% if enrollment.course.image %}
+                                    <img src="{{ enrollment.course.image.url }}" alt="{{ enrollment.course.title }}" class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700">
+                                {% else %}
+                                    <div class="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                                        <span class="text-white text-4xl font-bold">{{ enrollment.course.title|first }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="p-6">
+                                <span class="inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold mb-3">
+                                    {{ enrollment.course.category.name }}
+                                </span>
+
+                                <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                                    {{ enrollment.course.title }}
+                                </h3>
+
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                    {{ enrollment.course.description }}
+                                </p>
+
+                                <!-- Progress Bar -->
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-sm mb-2">
+                                        <span class="text-gray-600 font-medium">Progression</span>
+                                        <span class="font-bold text-blue-600">{{ enrollment.progress_percentage|floatformat:0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                        <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full transition-all duration-500" style="width: {{ enrollment.progress_percentage }}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="flex items-center justify-between pt-4 border-t">
+                                    <div class="flex items-center space-x-1">
+                                        {% for i in "12345" %}
+                                        <svg class="w-4 h-4 {% if forloop.counter <= enrollment.course.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                        {% endfor %}
+                                    </div>
+                                    <a href="{% url 'courses:detail' enrollment.course.slug %}" class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+                                        Continuer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-span-3 text-center py-16">
+                            <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                            <p class="text-gray-500 text-lg mb-4">Vous n'êtes inscrit à aucun cours pour le moment</p>
+                            <a href="{% url 'courses:list' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-medium">
+                                Explorer les cours
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- RECOMMENDED COURSES -->
+                {% if recommended_courses %}
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Cours recommandés pour vous</h2>
+                        <a href="{% url 'courses:list' %}" class="text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-2 group">
+                            <span>Voir tout</span>
+                            <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {% for course in recommended_courses %}
+                        <div class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                            <!-- Image -->
+                            <div class="relative h-40 overflow-hidden">
+                                {% if course.image %}
+                                    <img src="{{ course.image.url }}" alt="{{ course.title }}" class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700">
+                                {% else %}
+                                    <div class="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                                        <span class="text-white text-2xl font-bold">{{ course.title|first }}</span>
+                                    </div>
+                                {% endif %}
+                                {% if course.price == 0 %}
+                                <span class="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">GRATUIT</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Content -->
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800 mb-2 text-sm line-clamp-2">{{ course.title }}</h3>
+                                <p class="text-xs text-gray-600 mb-3 line-clamp-1">{{ course.category.name }}</p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-1">
+                                        {% for i in "12345" %}
+                                        <svg class="w-3 h-3 {% if forloop.counter <= course.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                        {% endfor %}
+                                        <span class="text-xs text-gray-600 ml-1">{{ course.rating }}</span>
+                                    </div>
+                                    <a href="{% url 'courses:detail' course.slug %}" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                                        Voir →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ACTIVITY CHART -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Activité de la semaine</h2>
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+                            <span>Leçons complétées</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-end justify-between h-64 space-x-2">
+                        {% for day in weekly_progress %}
+                        <div class="flex flex-col items-center flex-1 group">
+                            <div class="w-full flex items-end justify-center relative" style="height: 200px;">
+                                <div class="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg hover:from-blue-600 hover:to-blue-500 transition-all cursor-pointer relative group-hover:shadow-lg"
+                                     style="height: {% if day.count > 0 %}{{ day.count|mul:40 }}%{% else %}8px{% endif %}; min-height: 8px;">
+                                    <span class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                        {{ day.count }} leçon{{ day.count|pluralize }}
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-500 mt-3 font-medium">{{ day.date|date:"D" }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="bg-white border-t border-gray-100 mt-16">
+                <div class="px-8 py-6">
+                    <div class="flex flex-col md:flex-row items-center justify-between">
+                        <p class="text-gray-600 text-sm">
+                            © 2025 WIM Platform. Tous droits réservés.
+                        </p>
+                        <div class="flex items-center space-x-6 mt-4 md:mt-0">
+                            <a href="#" class="text-gray-600 hover:text-blue-600 text-sm transition-colors">À propos</a>
+                            <a href="#" class="text-gray-600 hover:text-blue-600 text-sm transition-colors">Support</a>
+                            <a href="#" class="text-gray-600 hover:text-blue-600 text-sm transition-colors">Confidentialité</a>
+                            <a href="#" class="text-gray-600 hover:text-blue-600 text-sm transition-colors">Conditions</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Animation au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card-hover');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        });
+
+        // Tooltip pour les notifications
+        const notifButton = document.querySelector('button[class*="notification"]');
+        if (notifButton) {
+            notifButton.addEventListener('click', function() {
+                alert('Vous avez 3 nouvelles notifications');
+            });
+        }
+    </script>
+
+</body>
+</html>

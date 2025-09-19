@@ -3,111 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription - WIM Platform</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.3.5/tailwind.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>WIM Platform - Inscription</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .pattern-bg {
+            background-image:
+                linear-gradient(30deg, #10b981 12%, transparent 12.5%, transparent 87%, #10b981 87.5%, #10b981),
+                linear-gradient(150deg, #10b981 12%, transparent 12.5%, transparent 87%, #10b981 87.5%, #10b981);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
+<body class="min-h-screen bg-gray-50">
+    <div class="min-h-screen flex">
+        <!-- Left Side - Image & Branding -->
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800 relative overflow-hidden">
+            <div class="absolute inset-0 pattern-bg opacity-10"></div>
 
-    <div class="max-w-md w-full mx-4">
-        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
-            <!-- Logo -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-full mb-4">
-                    <span class="text-white font-bold text-2xl">W</span>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-800">Créer un compte</h2>
-                <p class="text-gray-600 mt-2">Rejoignez WIM Platform aujourd'hui</p>
-            </div>
-
-            {% if messages %}
-                {% for message in messages %}
-                <div class="mb-4 p-3 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-            {% endif %}
-
-            <form method="POST" action="{% url 'authentication:register' %}">
-                {% csrf_token %}
-
-                <div class="mb-4">
-                    <label for="name" class="block text-gray-700 font-medium mb-2">Nom complet</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="John Doe"
-                    >
+            <div class="relative z-10 flex flex-col justify-between p-12 w-full">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                        <span class="text-green-600 font-bold text-2xl">W</span>
+                    </div>
+                    <span class="text-white text-2xl font-bold tracking-tight">WIM</span>
                 </div>
 
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="votre@email.com"
-                    >
+                <!-- Hero Image -->
+                <div class="flex-1 flex items-center justify-center">
+                    <div class="max-w-md">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80"
+                             alt="Students studying together"
+                             class="rounded-2xl shadow-2xl border-4 border-white/20">
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="password" class="block text-gray-700 font-medium mb-2">Mot de passe</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="••••••••"
-                    >
-                    <p class="text-xs text-gray-500 mt-1">Minimum 8 caractères avec majuscule, chiffre et caractère spécial</p>
-                </div>
-
-                <div class="mb-6">
-                    <label for="password2" class="block text-gray-700 font-medium mb-2">Confirmer le mot de passe</label>
-                    <input
-                        type="password"
-                        id="password2"
-                        name="password2"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="••••••••"
-                    >
-                </div>
-
-                <div class="mb-6">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="terms" required class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <span class="ml-2 text-sm text-gray-600">
-                            J'accepte les <a href="#" class="text-blue-600 hover:underline">conditions d'utilisation</a>
-                        </span>
-                    </label>
-                </div>
-
-                <button
-                    type="submit"
-                    class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-200 mb-4"
-                >
-                    S'inscrire
-                </button>
-
-                <div class="text-center">
-                    <p class="text-gray-600">
-                        Déjà un compte ?
-                        <a href="{% url 'authentication:login' %}" class="text-blue-600 font-semibold hover:text-blue-700">Se connecter</a>
+                <!-- Bottom Text -->
+                <div class="space-y-4">
+                    <h2 class="text-4xl font-bold text-white leading-tight">
+                        Rejoignez la communauté WIM Platform
+                    </h2>
+                    <p class="text-green-200 text-lg">
+                        Créez votre compte et commencez votre parcours d'apprentissage dès aujourd'hui
                     </p>
                 </div>
-            </form>
+            </div>
+        </div>
+
+        <!-- Right Side - Register Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+            <div class="w-full max-w-md">
+                <!-- Logo Mobile -->
+                <div class="lg:hidden flex items-center justify-center space-x-3 mb-8">
+                    <div class="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span class="text-white font-bold text-2xl">W</span>
+                    </div>
+                    <span class="text-gray-800 text-2xl font-bold">WIM</span>
+                </div>
+
+                <!-- Welcome Text -->
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Créer un compte</h1>
+                    <p class="text-gray-600">Rejoignez WIM Platform gratuitement</p>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="mb-4 p-3 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Register Form -->
+                <form method="POST" action="{% url 'authentication:register' %}" class="space-y-5">
+                    {% csrf_token %}
+
+                    <!-- Name Input -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                            placeholder="John Doe"
+                        >
+                    </div>
+
+                    <!-- Email Input -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                            placeholder="votre@email.com"
+                        >
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                            placeholder="••••••••"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">Minimum 8 caractères avec majuscule, chiffre et caractère spécial</p>
+                    </div>
+
+                    <!-- Confirm Password Input -->
+                    <div>
+                        <label for="password2" class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
+                        <input
+                            type="password"
+                            id="password2"
+                            name="password2"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                            placeholder="••••••••"
+                        >
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="flex items-center">
+                        <input type="checkbox" name="terms" required class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        <label class="ml-2 text-sm text-gray-600">
+                            J'accepte les <a href="#" class="text-green-600 hover:text-green-700 font-medium">conditions d'utilisation</a> et la <a href="#" class="text-green-600 hover:text-green-700 font-medium">politique de confidentialité</a>
+                        </label>
+                    </div>
+
+                    <!-- Register Button -->
+                    <button
+                        type="submit"
+                        class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                        Créer mon compte
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white text-gray-500">Ou s'inscrire avec</span>
+                        </div>
+                    </div>
+
+                    <!-- Social Login -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                            <span class="ml-2 font-medium text-gray-700">Apple</span>
+                        </button>
+                        <button type="button" class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                            <span class="ml-2 font-medium text-gray-700">Google</span>
+                        </button>
+                    </div>
+
+                    <!-- Login Link -->
+                    <div class="text-center pt-4">
+                        <p class="text-gray-600">
+                            Vous avez déjà un compte ?
+                            <a href="{% url 'authentication:login' %}" class="text-green-600 font-semibold hover:text-green-700">
+                                Se connecter
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-
 </body>
 </html>

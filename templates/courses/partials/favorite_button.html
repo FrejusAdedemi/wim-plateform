@@ -1,3 +1,4 @@
+{% load static %}
 <button
     hx-post="{% url 'courses:toggle_favorite' course.id %}"
     hx-swap="outerHTML"

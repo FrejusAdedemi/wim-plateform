@@ -1,3 +1,4 @@
+{% load static %}
 <button
     hx-post="{% url 'courses:complete_lesson' lesson.id %}"
     hx-swap="outerHTML"

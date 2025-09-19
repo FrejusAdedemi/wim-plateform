@@ -27,15 +27,14 @@ class CourseListView(ListView):
     def get_queryset(self):
         queryset = Course.objects.filter(is_published=True).select_related(
             'category', 'instructor'
-        ).prefetch_related('tags')
+        )
 
         # Recherche
         query = self.request.GET.get('q')
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query) |
-                Q(description__icontains=query) |
-                Q(tags__name__icontains=query)
+                Q(description__icontains=query)
             ).distinct()
 
         # Filtrage par catégorie
@@ -275,8 +274,7 @@ def htmx_search_courses(request):
     if query:
         courses = courses.filter(
             Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(tags__name__icontains=query)
+            Q(description__icontains=query)
         ).distinct()
 
     courses = courses[:12]

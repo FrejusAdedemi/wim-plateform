@@ -32,6 +32,44 @@ class Enrollment(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.course.title}"
 
+    def calculate_progress(self):
+        """Calcule et met à jour la progression du cours"""
+        from apps.progress.models import LessonProgress
+
+        # Compter le total de leçons dans le cours
+        total_lessons = 0
+        for module in self.course.modules.filter(is_published=True):
+            total_lessons += module.lessons.filter(is_published=True).count()
+
+        if total_lessons == 0:
+            self.progress_percentage = 0
+        else:
+            # Compter les leçons complétées
+            completed_lessons = LessonProgress.objects.filter(
+                enrollment=self,
+                is_completed=True
+            ).count()
+
+            self.progress_percentage = (completed_lessons / total_lessons) * 100
+
+            # Marquer comme complété si 100%
+            if self.progress_percentage >= 100:
+                self.is_completed = True
+                if not self.completed_at:
+                    self.completed_at = timezone.now()
+
+        self.save(update_fields=['progress_percentage', 'is_completed', 'completed_at'])
+
+    def get_time_spent_hours(self):
+        """Retourne le temps passé en heures"""
+        return round(self.total_time_spent / 3600, 1) if self.total_time_spent > 0 else 0
+
+    def mark_started(self):
+        """Marque le cours comme commencé"""
+        if not self.started_at:
+            self.started_at = timezone.now()
+            self.save(update_fields=['started_at'])
+
 
 class Review(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='reviews', verbose_name='utilisateur')
