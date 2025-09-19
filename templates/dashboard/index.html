@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - WIM Platform{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block page_subtitle %}Bienvenue {{ user.get_full_name }}{% endblock %}
+
+{% block content %}
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Active Courses -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Cours actifs</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ active_courses_count }}</p>
+            </div>
+            <div class="bg-blue-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progression -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Progression moyenne</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ average_progress }}%</p>
+            </div>
+            <div class="bg-green-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Study Time -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Temps d'étude</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_study_hours }}h</p>
+            </div>
+            <div class="bg-purple-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Certificates -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Certificats obtenus</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ certificates_count }}</p>
+            </div>
+            <div class="bg-yellow-100 rounded-full p-3">
+                <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+            <input 
+                type="text" 
+                placeholder="Rechercher un cours..."
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                hx-get="{% url 'dashboard:search' %}"
+                hx-trigger="keyup changed delay:500ms"
+                hx-target="#courses-grid"
+                hx-indicator="#search-loading"
+                name="q"
+            >
+        </div>
+        
+        <select 
+            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            hx-get="{% url 'dashboard:filter' %}"
+            hx-trigger="change"
+            hx-target="#courses-grid"
+            name="category"
+        >
+            <option value="">Toutes les catégories</option>
+            <option value="dev">Développement</option>
+            <option value="design">Design</option>
+            <option value="data">Data Science</option>
+            <option value="backend">Backend</option>
+        </select>
+        
+        <select 
+            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            hx-get="{% url 'dashboard:filter' %}"
+            hx-trigger="change"
+            hx-target="#courses-grid"
+            name="difficulty"
+        >
+            <option value="">Toutes difficultés</option>
+            <option value="beginner">Débutant</option>
+            <option value="intermediate">Intermédiaire</option>
+            <option value="advanced">Avancé</option>
+        </select>
+    </div>
+    
+    <div id="search-loading" class="htmx-indicator mt-4 text-center text-gray-500">
+        <span>Recherche en cours...</span>
+    </div>
+</div>
+
+<!-- My Courses Section -->
+<div class="mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-800">Mes cours en cours</h2>
+        <a href="{% url 'enrollments:my-courses' %}" class="text-blue-500 hover:text-blue-600 font-medium">Voir tout →</a>
+    </div>
+    
+    <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for enrollment in recent_courses %}
+        <div class="course-card bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="relative">
+                <img src="{{ enrollment.course.image.url }}" alt="{{ enrollment.course.title }}" class="w-full h-48 object-cover">
+                {% if enrollment.course.is_new %}
+                <span class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-semibold">NOUVEAU</span>
+                {% endif %}
+            </div>
+            
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">{{ enrollment.course.category.name }}</span>
+                    <span class="text-xs text-gray-500">{{ enrollment.course.duration_hours }}h</span>
+                </div>
+                
+                <h3 class="font-bold text-gray-800 mb-2 line-clamp-2">{{ enrollment.course.title }}</h3>
+                <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ enrollment.course.description }}</p>
+                
+                <!-- Progress Bar -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-600">Progression</span>
+                        <span class="font-semibold text-blue-500">{{ enrollment.progress_percentage|floatformat:0 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="progress-bar bg-blue-500 h-2 rounded-full" style="width: {{ enrollment.progress_percentage }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-1">
+                        {% for i in "12345" %}
+                        <svg class="w-4 h-4 {% if forloop.counter <= enrollment.course.average_rating_stars %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'courses:detail' enrollment.course.slug %}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                        Continuer
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-12">
+            <p class="text-gray-500">Vous n'êtes inscrit à aucun cours pour le moment.</p>
+            <a href="{% url 'courses:list' %}" class="mt-4 inline-block px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                Explorer les cours
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Weekly Activity Chart -->
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Activité de la semaine</h2>
+    
+    <div class="flex items-end justify-between h-48">
+        {% for day in weekly_progress %}
+        <div class="flex flex-col items-center flex-1">
+            <div class="w-full flex items-end justify-center" style="height: 150px;">
+                <div class="w-12 bg-blue-500 rounded-t hover:bg-blue-600 transition-all cursor-pointer" 
+                     style="height: {% if day.count > 0 %}{{ day.count|mul:30 }}%{% else %}5%{% endif %}">
+                </div>
+            </div>
+            <span class="text-xs text-gray-500 mt-2">{{ day.date|date:"D" }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

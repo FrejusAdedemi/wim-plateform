@@ -1,0 +1,129 @@
+# Core Django
+Django
+djangorestframework
+
+# Base de données
+psycopg2-binary
+dj-database-url
+
+# Gestion des variables d'environnement
+python-decouple
+python-dotenv
+
+# Authentification et sécurité
+django-allauth
+django-crispy-forms
+crispy-tailwind
+argon2-cffi
+
+# HTMX et interactivité
+django-htmx
+
+# Traitement d'images
+Pillow
+django-imagekit
+
+# Génération PDF (certificats)
+reportlab
+PyPDF2
+weasyprint
+
+# Gestion du temps et dates
+python-dateutil
+pytz
+
+# Validation et formulaires
+django-phonenumber-field
+phonenumbers
+
+# Pagination et filtres
+django-filter
+django-tables2
+
+# Recherche et indexation
+django-haystack
+
+# Gestion des fichiers et médias
+django-storages
+boto3
+
+# Outils de développement
+django-debug-toolbar
+django-extensions
+
+# Tests
+pytest
+pytest-django
+pytest-cov
+factory-boy
+faker
+
+# Qualité du code
+black
+flake8
+pylint
+isort
+
+# Monitoring et logging
+sentry-sdk
+django-log-request-id
+
+# Cache
+django-redis
+redis
+
+# Performance
+django-compressor
+
+# Emails
+django-anymail
+
+# Tâches asynchrones
+celery
+django-celery-beat
+django-celery-results
+
+# API et serialization
+djangorestframework-simplejwt
+drf-spectacular
+
+# Utilitaires
+python-slugify
+python-magic
+chardet
+
+# Graphiques et statistiques
+matplotlib
+pandas
+numpy
+
+# Serveur WSGI pour production
+gunicorn
+whitenoise
+
+# Sécurité
+django-cors-headers
+django-csp
+django-permissions-policy
+
+# Gestion des sessions
+django-session-security
+
+# QR Code pour certificats
+qrcode
+
+# Markdown
+markdown
+django-markdownx
+
+# Tags et catégories
+django-taggit
+
+# Notifications
+django-notifications-hq
+
+# Internationalisation
+django-modeltranslation
+
+# Backup
+django-dbbackup
