@@ -14,6 +14,8 @@ from pathlib import Path
 
 from django.conf.global_settings import MEDIA_URL
 
+import config.middleware
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -56,6 +58,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "config.middleware.HTMXMiddleware",
 ]
 
 CSRF_TRUSTED_ORIGINS = [

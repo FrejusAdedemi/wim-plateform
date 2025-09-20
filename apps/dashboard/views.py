@@ -1,3 +1,5 @@
+# apps/dashboard/views.py - Version corrigée
+
 """
 Views Dashboard - WIM Platform
 Tableau de bord principal avec statistiques
@@ -20,7 +22,7 @@ from apps.certificates.models import Certificate
 class DashboardView(LoginRequiredMixin, TemplateView):
     """Vue principale du dashboard"""
     template_name = 'dashboard/index.html'
-    login_url = '/auth/login/'  # URL de redirection si non connecté
+    login_url = '/auth/login/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -156,7 +158,8 @@ def search_courses(request):
         else:
             courses = Course.objects.filter(is_published=True).order_by('-created_at')[:12]
 
-        if request.htmx:
+        # Vérifier si c'est une requête HTMX
+        if hasattr(request, 'htmx') and request.htmx:
             return render(request, 'dashboard/partials/course_grid.html', {
                 'courses': courses
             })
@@ -184,7 +187,8 @@ def filter_courses(request):
 
         courses = courses.order_by('-rating')[:12]
 
-        if request.htmx:
+        # Vérifier si c'est une requête HTMX
+        if hasattr(request, 'htmx') and request.htmx:
             return render(request, 'dashboard/partials/course_grid.html', {
                 'courses': courses
             })
