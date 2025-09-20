@@ -28,7 +28,15 @@ urlpatterns = [
     path('certificates/', include('apps.certificates.urls')),
 ]
 
+# Configuration pour servir les fichiers média et statiques en développement
 if settings.DEBUG:
+    # Servir les fichiers média (uploads d'utilisateurs)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Servir les fichiers statiques (CSS, JS, images du site)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+# Gestionnaires d'erreurs personnalisés
+handler404 = 'apps.dashboard.views.custom_404'
+handler500 = 'apps.dashboard.views.custom_500'
+handler403 = 'apps.dashboard.views.custom_403'
+handler400 = 'apps.dashboard.views.custom_400'

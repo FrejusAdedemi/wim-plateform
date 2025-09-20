@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+
+from django.conf.global_settings import MEDIA_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "Fr-fr"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Paris"
 
 USE_I18N = True
 
@@ -141,8 +143,26 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Configuration email pour la réinitialisation de mot de passe
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement
+DEFAULT_FROM_EMAIL = "WIM Plateform <noreply@wim-plateform.com>"
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'   # Pour la production
+
+# Configuration SMTP (pour la production)
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'votre@email.com'
+# EMAIL_HOST_PASSWORD = 'votre_mot_de_passe'
+# DEFAULT_FROM_EMAIL = 'WIM Platform <noreply@wim-platform.com>'
