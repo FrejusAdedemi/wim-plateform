@@ -55,7 +55,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             'total_study_hours': total_hours,
             'average_progress': avg_progress,
 
-            # Cours récents
+            # Cours récents (CORRECTION: récupérer les cours actifs pour l'affichage)
             'recent_courses': self.get_recent_courses(user),
 
             # Cours recommandés
@@ -73,10 +73,14 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_recent_courses(self, user, limit=6):
         """Récupérer les cours récemment consultés"""
         try:
+            # CORRECTION: Récupérer les inscriptions actives avec les cours
             enrollments = Enrollment.objects.filter(
                 user=user,
                 is_active=True
-            ).select_related('course', 'course__category').order_by('-last_accessed')[:limit]
+            ).select_related('course', 'course__category', 'course__instructor').order_by('-last_accessed')[:limit]
+
+            print(f"Debug: Found {enrollments.count()} enrollments for user {user.email}")  # Debug
+
             return enrollments
         except Exception as e:
             print(f"Erreur get_recent_courses: {e}")
@@ -94,7 +98,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 # Si pas de cours, recommander les cours populaires
                 return Course.objects.filter(
                     is_published=True
-                ).order_by('-total_students')[:limit]
+                ).select_related('category', 'instructor').order_by('-total_students')[:limit]
 
             # Cours recommandés dans les mêmes catégories
             return Course.objects.filter(
@@ -102,10 +106,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 is_published=True
             ).exclude(
                 enrollments__user=user
-            ).order_by('-rating', '-total_students')[:limit]
+            ).select_related('category', 'instructor').order_by('-rating', '-total_students')[:limit]
         except Exception as e:
             print(f"Erreur get_recommended_courses: {e}")
-            return []
+            return Course.objects.filter(is_published=True).select_related('category', 'instructor')[:limit]
 
     def get_recent_activity(self, user, days=7):
         """Activité récente (leçons complétées)"""
@@ -154,9 +158,10 @@ def search_courses(request):
                 Q(title__icontains=query) |
                 Q(description__icontains=query),
                 is_published=True
-            ).distinct()[:12]
+            ).select_related('category', 'instructor').distinct()[:12]
         else:
-            courses = Course.objects.filter(is_published=True).order_by('-created_at')[:12]
+            courses = Course.objects.filter(is_published=True).select_related('category', 'instructor').order_by(
+                '-created_at')[:12]
 
         # Vérifier si c'est une requête HTMX
         if hasattr(request, 'htmx') and request.htmx:
@@ -177,7 +182,7 @@ def filter_courses(request):
     difficulty = request.GET.get('difficulty')
 
     try:
-        courses = Course.objects.filter(is_published=True)
+        courses = Course.objects.filter(is_published=True).select_related('category', 'instructor')
 
         if category:
             courses = courses.filter(category__slug=category)
@@ -218,7 +223,7 @@ def user_stats(request):
 
         context = {
             'stats': stats,
-            'enrollments': Enrollment.objects.filter(user=user, is_active=True),
+            'enrollments': Enrollment.objects.filter(user=user, is_active=True).select_related('course'),
         }
 
         return render(request, 'dashboard/stats.html', context)

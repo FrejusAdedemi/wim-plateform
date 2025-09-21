@@ -24,22 +24,39 @@ class MyCoursesView(LoginRequiredMixin, ListView):
         return Enrollment.objects.filter(
             user=self.request.user,
             is_active=True
-        ).select_related('course', 'course__category').order_by('-enrolled_at')
+        ).select_related('course', 'course__category', 'course__instructor').order_by('-enrolled_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Tous les enrollments de l'utilisateur
+        all_enrollments = self.get_queryset()
 
         # Filtrer par statut
         status = self.request.GET.get('status', 'all')
 
         if status == 'completed':
-            context['enrollments'] = context['enrollments'].filter(is_completed=True)
+            enrollments = all_enrollments.filter(is_completed=True)
         elif status == 'in_progress':
-            context['enrollments'] = context['enrollments'].filter(is_completed=False)
+            enrollments = all_enrollments.filter(is_completed=False)
         elif status == 'favorites':
-            context['enrollments'] = context['enrollments'].filter(is_favorite=True)
+            enrollments = all_enrollments.filter(is_favorite=True)
+        else:
+            enrollments = all_enrollments
 
-        context['status_filter'] = status
+        # CORRECTION: Séparer les différents types d'enrollments
+        context.update({
+            'enrollments': enrollments,
+            'active_enrollments': all_enrollments.filter(is_completed=False),
+            'completed_enrollments': all_enrollments.filter(is_completed=True),
+            'favorite_enrollments': all_enrollments.filter(is_favorite=True),
+            'status_filter': status,
+
+            # Compteurs pour les onglets
+            'active_count': all_enrollments.filter(is_completed=False).count(),
+            'completed_count': all_enrollments.filter(is_completed=True).count(),
+            'favorites_count': all_enrollments.filter(is_favorite=True).count(),
+        })
 
         return context
 
@@ -48,14 +65,14 @@ class FavoritesView(LoginRequiredMixin, ListView):
     """Cours favoris"""
     model = Enrollment
     template_name = 'enrollments/favorites.html'
-    context_object_name = 'enrollments'
+    context_object_name = 'favorites'
 
     def get_queryset(self):
         return Enrollment.objects.filter(
             user=self.request.user,
             is_favorite=True,
             is_active=True
-        ).select_related('course')
+        ).select_related('course', 'course__category')
 
 
 @login_required
@@ -72,8 +89,7 @@ def enroll_course(request, course_id):
 
     if created:
         # Mettre à jour le compteur
-        course.total_students += 1
-        course.save()
+        course.update_students_count()
         messages.success(request, f'Inscription réussie au cours "{course.title}"!')
     else:
         if not enrollment.is_active:
@@ -103,8 +119,7 @@ def unenroll_course(request, enrollment_id):
 
     # Mettre à jour le compteur
     course = enrollment.course
-    course.total_students = max(0, course.total_students - 1)
-    course.save()
+    course.update_students_count()
 
     messages.success(request, f'Désinscription du cours "{course_title}" effectuée')
 
@@ -140,7 +155,8 @@ def submit_review(request, course_id):
         course=course,
         defaults={
             'rating': rating,
-            'comment': comment
+            'comment': comment,
+            'enrollment': enrollment
         }
     )
 
@@ -168,7 +184,7 @@ def toggle_favorite(request, enrollment_id):
     enrollment.save()
 
     if request.htmx:
-        return render(request, 'enrollments/enrollments/favorite_button.html', {
+        return render(request, 'enrollments/partials/favorite_button.html', {
             'enrollment': enrollment
         })
 

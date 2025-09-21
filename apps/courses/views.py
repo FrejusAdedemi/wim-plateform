@@ -224,7 +224,7 @@ def complete_lesson(request, lesson_id):
     enrollment.calculate_progress()
 
     if request.htmx:
-        return render(request, 'courses/enrollments/lesson_completed.html', {
+        return render(request, 'courses/partials/lesson_completed.html', {
             'lesson': lesson,
             'progress': progress,
             'enrollment': enrollment
@@ -251,8 +251,9 @@ def toggle_favorite(request, course_id):
         enrollment.save()
 
         if request.htmx:
-            return render(request, 'courses/enrollments/favorite_button.html', {
+            return render(request, 'courses/partials/favorite_button.html', {
                 'course': course,
+                'enrollment': enrollment,
                 'is_favorite': enrollment.is_favorite
             })
 
@@ -269,7 +270,7 @@ def htmx_search_courses(request):
     """Recherche en temps réel avec HTMX"""
     query = request.GET.get('q', '').strip()
 
-    courses = Course.objects.filter(is_published=True)
+    courses = Course.objects.filter(is_published=True).select_related('category', 'instructor')
 
     if query:
         courses = courses.filter(
@@ -279,7 +280,7 @@ def htmx_search_courses(request):
 
     courses = courses[:12]
 
-    return render(request, 'courses/enrollments/course_cards.html', {
+    return render(request, 'courses/partials/course_cards.html', {
         'courses': courses
     })
 
@@ -290,7 +291,7 @@ def htmx_filter_courses(request):
     difficulty = request.GET.get('difficulty')
     price_range = request.GET.get('price')
 
-    courses = Course.objects.filter(is_published=True)
+    courses = Course.objects.filter(is_published=True).select_related('category', 'instructor')
 
     if category:
         courses = courses.filter(category__slug=category)
@@ -305,7 +306,7 @@ def htmx_filter_courses(request):
 
     courses = courses.order_by('-rating')[:12]
 
-    return render(request, 'courses/enrollments/course_cards.html', {
+    return render(request, 'courses/partials/course_cards.html', {
         'courses': courses
     })
 
