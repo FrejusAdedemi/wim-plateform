@@ -20,6 +20,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(url='/dashboard/'), name='home'),
     path('auth/', include('apps.authentication.urls')),
+    path('accounts/', include('allauth.urls')),
     path('users/', include('apps.users.urls')),
     path('dashboard/', include('apps.dashboard.urls')),
     path('courses/', include('apps.courses.urls')),

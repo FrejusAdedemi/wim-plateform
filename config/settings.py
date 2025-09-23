@@ -11,10 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
-
-from django.conf.global_settings import MEDIA_URL
-
-import config.middleware
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-7z_x$vnt)rt==8wbgurx60p&stb+24-m-=m!ndf0htzyexd@r6"
+SECRET_KEY = config('SECRET_KEY', default="django-insecure-7z_x$vnt)rt==8wbgurx60p&stb+24-m-=m!ndf0htzyexd@r6")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -41,6 +38,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'apps.authentication',
     'apps.users',
     'apps.courses',
@@ -50,12 +52,19 @@ INSTALLED_APPS = [
     'apps.dashboard',
     'apps.youtube',
 ]
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -85,6 +94,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -105,29 +115,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-
-# YouTube API Configuration
-YOUTUBE_API_KEY = env('YOUTUBE_API_KEY', '')  # À ajouter dans votre .env
-YOUTUBE_API_SERVICE_NAME = 'youtube'
-YOUTUBE_API_VERSION = 'v3'
-
-# Cache settings pour les métadonnées YouTube
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'youtube_cache_table',
-    }
-}
-
-# Timeout pour les requêtes YouTube API (en secondes)
-YOUTUBE_API_TIMEOUT = 30
-
-# Nombre maximum de résultats par requête
-YOUTUBE_MAX_RESULTS = 50
-
-# Durée de cache des métadonnées YouTube (en secondes)
-YOUTUBE_CACHE_DURATION = 3600  # 1 heure
 
 
 # Password validation
@@ -154,7 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "Fr-fr"
+LANGUAGE_CODE = "fr-fr"
 
 TIME_ZONE = "Europe/Paris"
 
@@ -181,15 +168,142 @@ os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# ============================================================================
+# YOUTUBE API CONFIGURATION
+# ============================================================================
+
+# YouTube API Configuration
+YOUTUBE_API_KEY = config('YOUTUBE_API_KEY', default='')
+YOUTUBE_API_SERVICE_NAME = config('YOUTUBE_API_SERVICE_NAME', default='youtube')
+YOUTUBE_API_VERSION = config('YOUTUBE_API_VERSION', default='v3')
+
+# Cache settings pour les métadonnées YouTube
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'youtube_cache_table',
+    }
+}
+
+# Timeout pour les requêtes YouTube API (en secondes)
+YOUTUBE_API_TIMEOUT = 30
+
+# Nombre maximum de résultats par requête
+YOUTUBE_MAX_RESULTS = 50
+
+# Durée de cache des métadonnées YouTube (en secondes)
+YOUTUBE_CACHE_DURATION = 3600  # 1 heure
+
+# ============================================================================
+# GOOGLE OAUTH & ALLAUTH CONFIGURATION
+# ============================================================================
+
+# Google OAuth Configuration
+GOOGLE_OAUTH_CLIENT_ID = config('GOOGLE_OAUTH_CLIENT_ID', default='')
+GOOGLE_OAUTH_CLIENT_SECRET = config('GOOGLE_OAUTH_CLIENT_SECRET', default='')
+
+# Configuration OAuth depuis les variables d'environnement
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': GOOGLE_OAUTH_CLIENT_ID,
+            'secret': GOOGLE_OAUTH_CLIENT_SECRET,
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/youtube.readonly',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'offline',
+        }
+    }
+} if GOOGLE_OAUTH_CLIENT_ID else {}
+
+# AllAuth Settings
+LOGIN_REDIRECT_URL = "/dashboard/"
+LOGOUT_REDIRECT_URL = "/auth/login/"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_USERNAME_REQUIRED = False
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# ============================================================================
+# EMAIL CONFIGURATION
+# ============================================================================
+
 # Configuration email pour la réinitialisation de mot de passe
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour le développement
-DEFAULT_FROM_EMAIL = "WIM Plateform <noreply@wim-plateform.com>"
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'   # Pour la production
+DEFAULT_FROM_EMAIL = "WIM Platform <noreply@wim-platform.com>"
 
-# Configuration SMTP (pour la production)
+# Pour la production (décommentez et configurez)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'votre@email.com'
-# EMAIL_HOST_PASSWORD = 'votre_mot_de_passe'
-# DEFAULT_FROM_EMAIL = 'WIM Platform <noreply@wim-platform.com>'
+# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+
+# ============================================================================
+# LOGGING CONFIGURATION
+# ============================================================================
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'django.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'apps.youtube': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+# Créer le dossier logs s'il n'existe pas
+os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+
+# ============================================================================
+# SECURITY SETTINGS
+# ============================================================================
+
+if not DEBUG:
+    # Production security settings
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_REDIRECT_EXEMPT = []
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
