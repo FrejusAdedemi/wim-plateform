@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'apps.progress',
     'apps.certificates',
     'apps.dashboard',
+    'apps.youtube',
 ]
 
 MIDDLEWARE = [
@@ -104,6 +105,29 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+
+# YouTube API Configuration
+YOUTUBE_API_KEY = env('YOUTUBE_API_KEY', '')  # À ajouter dans votre .env
+YOUTUBE_API_SERVICE_NAME = 'youtube'
+YOUTUBE_API_VERSION = 'v3'
+
+# Cache settings pour les métadonnées YouTube
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'youtube_cache_table',
+    }
+}
+
+# Timeout pour les requêtes YouTube API (en secondes)
+YOUTUBE_API_TIMEOUT = 30
+
+# Nombre maximum de résultats par requête
+YOUTUBE_MAX_RESULTS = 50
+
+# Durée de cache des métadonnées YouTube (en secondes)
+YOUTUBE_CACHE_DURATION = 3600  # 1 heure
 
 
 # Password validation
