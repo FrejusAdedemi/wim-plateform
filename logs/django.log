@@ -899,3 +899,218 @@ INFO 2025-09-24 10:51:43,888 basehttp 7656 16164 "GET / HTTP/1.1" 302 0
 INFO 2025-09-24 10:51:43,917 basehttp 7656 16164 "GET /dashboard/ HTTP/1.1" 302 0
 INFO 2025-09-24 10:51:43,931 basehttp 7656 16164 "GET /auth/login/?next=/dashboard/ HTTP/1.1" 200 8689
 INFO 2025-09-24 10:51:46,577 basehttp 7656 16164 "GET /accounts/google/login/?next=%2Fdashboard%2F HTTP/1.1" 302 0
+INFO 2025-09-24 11:43:35,290 autoreload 12944 19416 Watching for file changes with StatReloader
+INFO 2025-09-24 11:43:36,806 basehttp 12944 28636 "GET / HTTP/1.1" 302 0
+INFO 2025-09-24 11:43:36,832 basehttp 12944 28636 "GET /dashboard/ HTTP/1.1" 302 0
+INFO 2025-09-24 11:43:36,854 basehttp 12944 28636 "GET /auth/login/?next=/dashboard/ HTTP/1.1" 200 8689
+INFO 2025-09-24 11:43:39,428 basehttp 12944 28636 "GET /accounts/google/login/?next=%2Fdashboard%2F HTTP/1.1" 302 0
+INFO 2025-09-24 11:43:51,878 basehttp 12944 28636 "GET /accounts/google/login/?next=%2Fdashboard%2F HTTP/1.1" 302 0
+ERROR 2025-09-24 11:44:16,887 log 12944 28636 Internal Server Error: /accounts/google/login/callback/
+Traceback (most recent call last):
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\db\models\options.py", line 681, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'username'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\providers\oauth2\views.py", line 89, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\providers\oauth2\views.py", line 167, in dispatch
+    return complete_social_login(request, login)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\helpers.py", line 196, in complete_social_login
+    return _complete_social_login(request, sociallogin)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\helpers.py", line 214, in _complete_social_login
+    ret = _process_signup(request, sociallogin)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\helpers.py", line 79, in _process_signup
+    get_account_adapter(request).clean_username(username)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\account\adapter.py", line 262, in clean_username
+    for validator in app_settings.USERNAME_VALIDATORS:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\account\app_settings.py", line 399, in __getattr__
+    return getattr(_app_settings, name)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\account\app_settings.py", line 370, in USERNAME_VALIDATORS
+    ._meta.get_field(self.USER_MODEL_USERNAME_FIELD)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\db\models\options.py", line 683, in get_field
+    raise FieldDoesNotExist(
+        "%s has no field named '%s'" % (self.object_name, field_name)
+    )
+django.core.exceptions.FieldDoesNotExist: User has no field named 'username'
+ERROR 2025-09-24 11:44:16,891 basehttp 12944 28636 "GET /accounts/google/login/callback/?state=5VSPm6egA42lG3xl&code=4/0AVGzR1C9qycznbGktr-Fy4dM4FNmsalCLJbKCeHdSfh4vJydnSFM_mX889GIzduxIcSSCw&scope=email%20profile%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid&authuser=4&prompt=consent HTTP/1.1" 500 117075
+ERROR 2025-09-24 11:44:30,425 log 12944 28636 Internal Server Error: /accounts/google/login/callback/
+Traceback (most recent call last):
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\db\models\options.py", line 681, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'username'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\providers\oauth2\views.py", line 89, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\providers\oauth2\views.py", line 167, in dispatch
+    return complete_social_login(request, login)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\helpers.py", line 196, in complete_social_login
+    return _complete_social_login(request, sociallogin)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\helpers.py", line 214, in _complete_social_login
+    ret = _process_signup(request, sociallogin)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\socialaccount\helpers.py", line 79, in _process_signup
+    get_account_adapter(request).clean_username(username)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\account\adapter.py", line 262, in clean_username
+    for validator in app_settings.USERNAME_VALIDATORS:
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\account\app_settings.py", line 399, in __getattr__
+    return getattr(_app_settings, name)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\allauth\account\app_settings.py", line 370, in USERNAME_VALIDATORS
+    ._meta.get_field(self.USER_MODEL_USERNAME_FIELD)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\db\models\options.py", line 683, in get_field
+    raise FieldDoesNotExist(
+        "%s has no field named '%s'" % (self.object_name, field_name)
+    )
+django.core.exceptions.FieldDoesNotExist: User has no field named 'username'
+ERROR 2025-09-24 11:44:30,428 basehttp 12944 28636 "GET /accounts/google/login/callback/?state=5VSPm6egA42lG3xl&code=4/0AVGzR1B1-nu-wD6rvaQbzCj5eG9ndL4ASuFqG0zuGoTOHayJfW5fa9AJKFzavb1A6alLfw&scope=email%20profile%20https://www.googleapis.com/auth/youtube.readonly%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid&authuser=4&prompt=consent HTTP/1.1" 500 117720
+INFO 2025-09-24 11:47:39,347 autoreload 12944 19416 C:\Users\frejus\Downloads\wim\wim-plateform\config\settings.py changed, reloading.
+INFO 2025-09-24 11:47:39,814 autoreload 34124 2980 Watching for file changes with StatReloader
+INFO 2025-09-24 11:47:58,901 autoreload 30000 16080 Watching for file changes with StatReloader
+INFO 2025-09-24 11:48:00,231 basehttp 30000 33800 "GET / HTTP/1.1" 302 0
+INFO 2025-09-24 11:48:00,257 basehttp 30000 33800 "GET /dashboard/ HTTP/1.1" 302 0
+INFO 2025-09-24 11:48:00,275 basehttp 30000 33800 "GET /auth/login/?next=/dashboard/ HTTP/1.1" 200 8689
+INFO 2025-09-24 11:48:05,026 basehttp 30000 33800 "GET /accounts/google/login/?next=%2Fdashboard%2F HTTP/1.1" 302 0
+INFO 2025-09-24 11:48:09,972 basehttp 30000 33800 "GET /accounts/google/login/callback/?state=4OTEmELGvpiIAHKR&code=4%2F0AVGzR1Dwsz4LJnFf6CZqrCMxBX7CPCZ_IhRqcB94sDGSBiENxJS-AoEVjwTkpJkMuUhwkw&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.readonly+openid&authuser=4&prompt=none HTTP/1.1" 302 0
+INFO 2025-09-24 11:48:10,007 basehttp 30000 33800 "GET /dashboard/ HTTP/1.1" 200 59341
+INFO 2025-09-24 11:48:27,836 basehttp 30000 33800 "GET /enrollments/my-courses/ HTTP/1.1" 200 28959
+INFO 2025-09-24 11:48:29,417 basehttp 30000 33800 "GET /courses/ HTTP/1.1" 200 73519
+INFO 2025-09-24 11:48:31,201 basehttp 30000 33800 "GET /courses/programming-web-development-crash-courses/ HTTP/1.1" 200 100996
+INFO 2025-09-24 11:49:04,848 basehttp 30000 33800 "GET /enrollments/my-courses/ HTTP/1.1" 200 28959
+INFO 2025-09-24 11:49:06,584 basehttp 30000 33800 "GET /dashboard/ HTTP/1.1" 200 58151
+INFO 2025-09-24 11:49:08,950 basehttp 30000 33800 "GET /courses/ HTTP/1.1" 200 73519
+INFO 2025-09-24 11:49:12,313 basehttp 30000 33800 "GET /courses/programming-web-development-crash-courses/ HTTP/1.1" 200 100996
+INFO 2025-09-24 11:49:13,574 basehttp 30000 33800 "POST /courses/enroll/7/ HTTP/1.1" 302 0
+INFO 2025-09-24 11:49:13,591 basehttp 30000 33800 "GET /courses/programming-web-development-crash-courses/ HTTP/1.1" 200 102571
+INFO 2025-09-24 11:49:15,511 basehttp 30000 33800 "GET /courses/programming-web-development-crash-courses/lesson/html-crash-course-for-absolute-beginners/ HTTP/1.1" 200 98159
+INFO 2025-09-24 11:49:25,933 basehttp 30000 33800 "GET /courses/programming-web-development-crash-courses/lesson/css-crash-course-for-absolute-beginners/ HTTP/1.1" 200 98683
+INFO 2025-09-24 11:49:32,756 basehttp 30000 33800 "GET /courses/programming-web-development-crash-courses/lesson/javascript-crash-course-for-beginners/ HTTP/1.1" 200 98827
+INFO 2025-09-24 11:49:40,649 basehttp 30000 33800 "GET /courses/programming-web-development-crash-courses/lesson/css-crash-course-for-absolute-beginners/ HTTP/1.1" 200 98683
+INFO 2025-09-24 11:49:44,026 basehttp 30000 33800 "GET /enrollments/my-courses/ HTTP/1.1" 200 32179
+INFO 2025-09-24 11:49:47,732 basehttp 30000 33800 "GET /dashboard/ HTTP/1.1" 200 58569
+INFO 2025-09-24 11:50:13,238 basehttp 30000 33800 "GET /users/profile/24/ HTTP/1.1" 200 31331
+INFO 2025-09-24 11:50:17,841 basehttp 30000 33800 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2025-09-24 11:50:17,849 basehttp 30000 33800 "GET /auth/login/ HTTP/1.1" 200 8884
+INFO 2025-09-24 11:50:45,777 basehttp 30000 33800 "GET /admin/ HTTP/1.1" 302 0
+INFO 2025-09-24 11:50:45,808 basehttp 30000 33800 "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4211
+INFO 2025-09-24 11:50:46,108 basehttp 30000 17792 "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2682
+INFO 2025-09-24 11:50:46,110 basehttp 30000 17792 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2025-09-24 11:50:46,114 basehttp 30000 29472 "GET /static/admin/css/login.css HTTP/1.1" 200 958
+INFO 2025-09-24 11:50:46,118 basehttp 30000 18708 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2025-09-24 11:50:46,125 basehttp 30000 33800 "GET /static/admin/css/base.css HTTP/1.1" 200 21544
+INFO 2025-09-24 11:50:46,134 basehttp 30000 6852 "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+INFO 2025-09-24 11:50:46,136 basehttp 30000 7904 "GET /static/admin/css/responsive.css HTTP/1.1" 200 17905
+INFO 2025-09-24 11:50:48,405 basehttp 30000 7904 "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4448
+INFO 2025-09-24 11:50:54,391 basehttp 30000 7904 "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2025-09-24 11:50:54,410 basehttp 30000 7904 "GET /admin/ HTTP/1.1" 200 16394
+INFO 2025-09-24 11:50:54,436 basehttp 30000 7904 "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2025-09-24 11:50:54,440 basehttp 30000 7904 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2025-09-24 11:50:54,440 basehttp 30000 6852 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+INFO 2025-09-24 11:51:17,323 basehttp 30000 944 "GET /admin/ HTTP/1.1" 302 0
+INFO 2025-09-24 11:51:17,329 basehttp 30000 944 "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4211
+INFO 2025-09-24 11:51:17,397 basehttp 30000 2224 "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2682
+INFO 2025-09-24 11:51:17,397 basehttp 30000 944 "GET /static/admin/css/base.css HTTP/1.1" 200 21544
+INFO 2025-09-24 11:51:17,398 basehttp 30000 28104 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2025-09-24 11:51:17,398 basehttp 30000 14164 "GET /static/admin/css/login.css HTTP/1.1" 200 958
+INFO 2025-09-24 11:51:17,399 basehttp 30000 36788 "GET /static/admin/css/responsive.css HTTP/1.1" 200 17905
+INFO 2025-09-24 11:51:17,562 basehttp 30000 14164 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2025-09-24 11:51:17,562 basehttp 30000 36788 "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+WARNING 2025-09-24 11:51:17,660 log 30000 36788 Not Found: /favicon.ico
+WARNING 2025-09-24 11:51:17,660 basehttp 30000 36788 "GET /favicon.ico HTTP/1.1" 404 3348
+INFO 2025-09-24 11:51:25,692 basehttp 30000 36788 "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4442
+INFO 2025-09-24 11:51:43,187 basehttp 30000 36788 "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4447
+INFO 2025-09-24 11:51:55,547 basehttp 30000 6852 "GET /admin/ HTTP/1.1" 200 16394
+INFO 2025-09-24 11:51:56,491 basehttp 30000 6852 "GET /admin/ HTTP/1.1" 200 16394
+INFO 2025-09-24 11:51:59,205 basehttp 30000 6852 "GET / HTTP/1.1" 302 0
+INFO 2025-09-24 11:51:59,231 basehttp 30000 6852 "GET /dashboard/ HTTP/1.1" 200 65461
+INFO 2025-09-24 11:52:02,107 basehttp 30000 6852 "GET /admin/ HTTP/1.1" 200 16394
+INFO 2025-09-24 11:52:21,853 basehttp 30000 6852 "GET /admin/courses/course/ HTTP/1.1" 200 25569
+INFO 2025-09-24 11:52:21,889 basehttp 30000 6852 "GET /static/admin/css/changelists.css HTTP/1.1" 200 6811
+INFO 2025-09-24 11:52:21,900 basehttp 30000 33800 "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2025-09-24 11:52:21,902 basehttp 30000 18708 "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+INFO 2025-09-24 11:52:21,902 basehttp 30000 17792 "GET /static/admin/js/actions.js HTTP/1.1" 200 8067
+INFO 2025-09-24 11:52:21,903 basehttp 30000 29472 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9042
+INFO 2025-09-24 11:52:21,904 basehttp 30000 33800 "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2025-09-24 11:52:21,907 basehttp 30000 18708 "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2025-09-24 11:52:21,908 basehttp 30000 29472 "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+INFO 2025-09-24 11:52:21,908 basehttp 30000 33800 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+INFO 2025-09-24 11:52:21,908 basehttp 30000 6852 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:52:21,910 basehttp 30000 7904 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+INFO 2025-09-24 11:52:21,911 basehttp 30000 17792 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+INFO 2025-09-24 11:52:21,920 basehttp 30000 17792 "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2025-09-24 11:52:21,935 basehttp 30000 17792 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2025-09-24 11:52:21,936 basehttp 30000 7904 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+INFO 2025-09-24 11:52:34,860 basehttp 30000 7904 "GET /admin/socialaccount/socialapp/ HTTP/1.1" 200 15174
+INFO 2025-09-24 11:52:34,916 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:52:38,413 basehttp 30000 7904 "GET /admin/socialaccount/socialtoken/ HTTP/1.1" 200 16792
+INFO 2025-09-24 11:52:38,442 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:52:42,295 basehttp 30000 7904 "GET /admin/courses/lesson/ HTTP/1.1" 200 86078
+INFO 2025-09-24 11:52:42,351 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:52:42,376 basehttp 30000 7904 "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+INFO 2025-09-24 11:52:53,809 basehttp 30000 7904 "GET /admin/courses/module/ HTTP/1.1" 200 23905
+INFO 2025-09-24 11:52:53,839 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:53:00,121 basehttp 30000 7904 "GET /admin/enrollments/review/ HTTP/1.1" 200 26726
+INFO 2025-09-24 11:53:00,179 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:53:00,185 basehttp 30000 7904 "GET /static/admin/img/icon-no.svg HTTP/1.1" 200 560
+INFO 2025-09-24 11:53:10,561 basehttp 30000 7904 "GET /admin/enrollments/favorite/ HTTP/1.1" 200 16577
+INFO 2025-09-24 11:53:10,590 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:53:11,919 basehttp 30000 7904 "GET /admin/courses/module/ HTTP/1.1" 200 23905
+INFO 2025-09-24 11:53:11,974 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:53:19,040 basehttp 30000 7904 "GET /admin/enrollments/enrollment/ HTTP/1.1" 200 38704
+INFO 2025-09-24 11:53:19,071 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:53:58,317 basehttp 30000 7904 "GET /admin/progress/lessonprogress/ HTTP/1.1" 200 40950
+INFO 2025-09-24 11:53:58,387 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:54:02,438 basehttp 30000 7904 "GET /admin/progress/studysession/ HTTP/1.1" 200 16668
+INFO 2025-09-24 11:54:02,474 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:54:03,948 basehttp 30000 7904 "GET /admin/enrollments/enrollment/ HTTP/1.1" 200 38704
+INFO 2025-09-24 11:54:04,010 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:54:10,103 basehttp 30000 7904 "GET /admin/sites/site/ HTTP/1.1" 200 17143
+INFO 2025-09-24 11:54:10,134 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:54:16,963 basehttp 30000 7904 "GET /admin/users/userpreference/ HTTP/1.1" 200 16369
+INFO 2025-09-24 11:54:17,020 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:54:19,349 basehttp 30000 7904 "GET /admin/users/user/ HTTP/1.1" 200 32759
+INFO 2025-09-24 11:54:19,380 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:54:26,350 basehttp 30000 7904 "GET /admin/users/user/?o=5 HTTP/1.1" 200 33551
+INFO 2025-09-24 11:54:26,409 basehttp 30000 7904 "GET /admin/jsi18n/ HTTP/1.1" 200 8985
+INFO 2025-09-24 11:54:29,637 basehttp 30000 7904 "GET /admin/ HTTP/1.1" 200 16394
+INFO 2025-09-24 13:28:13,238 autoreload 16140 18524 Watching for file changes with StatReloader
+INFO 2025-09-24 13:28:23,354 basehttp 16140 22276 "GET / HTTP/1.1" 302 0
+INFO 2025-09-24 13:28:23,460 basehttp 16140 22276 "GET /dashboard/ HTTP/1.1" 200 65461
+INFO 2025-09-24 13:28:30,470 basehttp 16140 22276 "GET /enrollments/my-courses/ HTTP/1.1" 200 39175
+INFO 2025-09-24 13:28:34,484 basehttp 16140 22276 "GET /dashboard/ HTTP/1.1" 200 65461
+INFO 2025-09-24 13:28:41,874 basehttp 16140 22276 "GET /progress/overview/ HTTP/1.1" 200 29666
+INFO 2025-09-24 13:28:43,575 basehttp 16140 22276 "GET /enrollments/my-courses/ HTTP/1.1" 200 39175
+INFO 2025-09-24 13:28:45,314 basehttp 16140 22276 "GET /dashboard/ HTTP/1.1" 200 65461
+INFO 2025-09-24 13:29:25,711 basehttp 16140 22276 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2025-09-24 13:29:25,733 basehttp 16140 22276 "GET /auth/login/ HTTP/1.1" 200 8884
+INFO 2025-09-24 13:29:27,857 basehttp 16140 22276 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2025-09-24 13:29:27,882 basehttp 16140 22276 "GET /dashboard/ HTTP/1.1" 200 66620
+INFO 2025-09-24 13:29:38,013 basehttp 16140 22276 "GET /dashboard/filter/?difficulty=intermediate HTTP/1.1" 200 15560
+INFO 2025-09-24 13:29:39,879 basehttp 16140 22276 "GET /dashboard/filter/?difficulty= HTTP/1.1" 200 41708
+INFO 2025-09-24 13:29:46,038 basehttp 16140 22276 "GET /dashboard/ HTTP/1.1" 200 65461
+INFO 2025-09-24 13:29:49,726 basehttp 16140 22276 "GET /courses/python-for-beginners-full-course-programming-tutorial/ HTTP/1.1" 200 103654
+INFO 2025-09-24 13:29:52,099 basehttp 16140 22276 "GET /courses/python-for-beginners-full-course-programming-tutorial/lesson/0-python-for-beginners-programming-tutorial/ HTTP/1.1" 200 101965
+INFO 2025-09-24 13:29:59,752 basehttp 16140 22276 "GET /courses/ HTTP/1.1" 200 73520
+INFO 2025-09-24 13:30:09,393 basehttp 16140 22276 "GET /courses/django-rest-api/ HTTP/1.1" 200 51753
+INFO 2025-09-24 13:30:22,072 basehttp 16140 22276 "GET /dashboard/ HTTP/1.1" 200 65461
