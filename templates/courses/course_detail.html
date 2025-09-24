@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 {% load static %}
 
 {% load math_filters %}
@@ -71,12 +72,13 @@
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-bold text-gray-800 mb-4">Ce que vous apprendrez</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {% for objective in course.learning_objectives.split %}
+                {% for objective in course.learning_objectives|split %}
                 <div class="flex items-start space-x-2">
                     <svg class="w-5 h-5 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <span class="text-gray-600">{{ objective }}</span>
+<!--                    <span class="text-gray-600">{{ objective }}</span>-->
+                    <li>{{ objective|strip_whitespace }}</li>
                 </div>
                 {% endfor %}
             </div>

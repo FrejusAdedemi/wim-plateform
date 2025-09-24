@@ -1,3 +1,5 @@
+# apps/courses/models.py - Version mise à jour
+
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
@@ -60,6 +62,14 @@ class Course(models.Model):
     prerequisites = models.TextField('prérequis', blank=True)
     learning_objectives = models.TextField('objectifs', blank=True)
 
+    # Champs YouTube
+    youtube_playlist_id = models.CharField('ID Playlist YouTube', max_length=100, blank=True)
+    youtube_channel_id = models.CharField('ID Chaîne YouTube', max_length=100, blank=True)
+    youtube_channel_name = models.CharField('Nom Chaîne YouTube', max_length=200, blank=True)
+    youtube_thumbnail_url = models.URLField('URL Miniature YouTube', blank=True)
+    is_youtube_synced = models.BooleanField('Synchronisé YouTube', default=False)
+    last_youtube_sync = models.DateTimeField('Dernière sync YouTube', null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -79,6 +89,28 @@ class Course(models.Model):
     def get_absolute_url(self):
         return reverse('courses:detail', kwargs={'slug': self.slug})
 
+    def update_from_youtube(self):
+        """Met à jour les métadonnées du cours depuis YouTube"""
+        if self.youtube_playlist_id:
+            from apps.youtube.services import YouTubeService
+            try:
+                youtube_service = YouTubeService()
+                playlist_data = youtube_service.get_playlist_details(self.youtube_playlist_id)
+
+                if playlist_data:
+                    self.youtube_channel_name = playlist_data['channel_name']
+                    self.youtube_thumbnail_url = playlist_data['thumbnail_url']
+
+                    # Mettre à jour l'image du cours si pas définie
+                    if not self.image and playlist_data['thumbnail_url']:
+                        # Optionnel: télécharger et sauver l'image
+                        pass
+
+                    self.save(update_fields=['youtube_channel_name', 'youtube_thumbnail_url'])
+            except Exception as e:
+                print(f"Erreur mise à jour YouTube: {e}")
+
+    # ... Autres méthodes existantes ...
     def update_students_count(self):
         """Met à jour le nombre d'étudiants inscrits"""
         self.total_students = self.enrollments.filter(is_active=True).count()
@@ -97,21 +129,6 @@ class Course(models.Model):
             self.total_reviews = 0
         self.save(update_fields=['rating', 'total_reviews'])
 
-    def get_completion_rate(self):
-        """Retourne le taux de complétion du cours"""
-        total_enrolled = self.enrollments.filter(is_active=True).count()
-        if total_enrolled == 0:
-            return 0
-        completed = self.enrollments.filter(is_completed=True).count()
-        return round((completed / total_enrolled) * 100, 1)
-
-    def get_total_lessons(self):
-        """Retourne le nombre total de leçons publiées"""
-        total = 0
-        for module in self.modules.filter(is_published=True):
-            total += module.lessons.filter(is_published=True).count()
-        return total
-
     def calculate_duration(self):
         """Calcule la durée totale du cours"""
         total_duration = 0
@@ -120,13 +137,6 @@ class Course(models.Model):
                 total_duration += lesson.duration
         self.duration = total_duration
         self.save(update_fields=['duration'])
-
-    def get_first_lesson(self):
-        """Retourne la première leçon du cours"""
-        first_module = self.modules.filter(is_published=True).order_by('order').first()
-        if first_module:
-            return first_module.lessons.filter(is_published=True).order_by('order').first()
-        return None
 
 
 class Module(models.Model):
@@ -157,10 +167,6 @@ class Module(models.Model):
         self.duration = total_duration
         self.save(update_fields=['duration'])
 
-    def get_lessons_count(self):
-        """Retourne le nombre de leçons publiées"""
-        return self.lessons.filter(is_published=True).count()
-
 
 class Lesson(models.Model):
     LESSON_TYPE_CHOICES = [
@@ -186,6 +192,15 @@ class Lesson(models.Model):
     is_preview = models.BooleanField('aperçu gratuit', default=False)
     is_published = models.BooleanField('publié', default=True)
 
+    # Champs YouTube
+    youtube_video_id = models.CharField('ID Vidéo YouTube', max_length=20, blank=True)
+    youtube_title = models.CharField('Titre YouTube', max_length=300, blank=True)
+    youtube_description = models.TextField('Description YouTube', blank=True)
+    youtube_thumbnail_url = models.URLField('Miniature YouTube', blank=True)
+    youtube_duration_seconds = models.IntegerField('Durée YouTube (sec)', null=True, blank=True)
+    youtube_view_count = models.IntegerField('Vues YouTube', default=0)
+    youtube_published_at = models.DateTimeField('Publié sur YouTube', null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -201,11 +216,24 @@ class Lesson(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
+
+        # Générer l'URL vidéo à partir de l'ID YouTube
+        if self.youtube_video_id and not self.video_url:
+            self.video_url = f"https://www.youtube.com/watch?v={self.youtube_video_id}"
+
+        # Utiliser le titre YouTube si pas de titre défini
+        if self.youtube_title and not self.title:
+            self.title = self.youtube_title[:200]
+
+        # Utiliser la durée YouTube si définie
+        if self.youtube_duration_seconds and not self.duration:
+            self.duration = max(1, self.youtube_duration_seconds // 60)
+
         super().save(*args, **kwargs)
 
+    # ... Autres méthodes existantes ...
     def get_previous_lesson(self):
         """Retourne la leçon précédente"""
-        # Chercher dans le même module
         previous_in_module = self.module.lessons.filter(
             order__lt=self.order,
             is_published=True
@@ -214,7 +242,6 @@ class Lesson(models.Model):
         if previous_in_module:
             return previous_in_module
 
-        # Chercher dans le module précédent
         previous_module = self.module.course.modules.filter(
             order__lt=self.module.order,
             is_published=True
@@ -229,7 +256,6 @@ class Lesson(models.Model):
 
     def get_next_lesson(self):
         """Retourne la leçon suivante"""
-        # Chercher dans le même module
         next_in_module = self.module.lessons.filter(
             order__gt=self.order,
             is_published=True
@@ -238,7 +264,6 @@ class Lesson(models.Model):
         if next_in_module:
             return next_in_module
 
-        # Chercher dans le module suivant
         next_module = self.module.course.modules.filter(
             order__gt=self.module.order,
             is_published=True
@@ -250,22 +275,3 @@ class Lesson(models.Model):
             ).order_by('order').first()
 
         return None
-
-    def is_completed_by_user(self, user):
-        """Vérifie si la leçon est complétée par un utilisateur"""
-        from apps.progress.models import LessonProgress
-        from apps.enrollments.models import Enrollment
-
-        try:
-            enrollment = Enrollment.objects.get(
-                user=user,
-                course=self.module.course,
-                is_active=True
-            )
-            progress = LessonProgress.objects.get(
-                enrollment=enrollment,
-                lesson=self
-            )
-            return progress.is_completed
-        except (Enrollment.DoesNotExist, LessonProgress.DoesNotExist):
-            return False
