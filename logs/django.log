@@ -816,3 +816,86 @@ INFO 2025-09-24 10:18:59,924 basehttp 28796 38804 "GET / HTTP/1.1" 302 0
 INFO 2025-09-24 10:18:59,934 basehttp 28796 38804 "GET /dashboard/ HTTP/1.1" 302 0
 INFO 2025-09-24 10:18:59,953 basehttp 28796 38804 "GET /auth/login/?next=/dashboard/ HTTP/1.1" 200 8689
 INFO 2025-09-24 10:25:26,635 autoreload 35928 30256 Watching for file changes with StatReloader
+INFO 2025-09-24 10:25:32,855 basehttp 35928 32352 "GET /auth/login/?next=/dashboard/ HTTP/1.1" 200 8689
+INFO 2025-09-24 10:26:11,848 basehttp 35928 32352 "POST /auth/login/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:26:11,909 basehttp 35928 32352 "GET /dashboard/ HTTP/1.1" 200 66620
+INFO 2025-09-24 10:27:23,887 basehttp 35928 32352 "GET /courses/ HTTP/1.1" 200 73520
+INFO 2025-09-24 10:27:25,807 basehttp 35928 32352 "GET /enrollments/my-courses/ HTTP/1.1" 200 39175
+INFO 2025-09-24 10:28:05,688 basehttp 35928 32352 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:28:05,704 basehttp 35928 32352 "GET /auth/login/ HTTP/1.1" 200 8884
+INFO 2025-09-24 10:28:09,675 basehttp 35928 32352 "GET /auth/register/ HTTP/1.1" 200 9306
+ERROR 2025-09-24 10:28:44,272 log 35928 32352 Internal Server Error: /auth/register/
+Traceback (most recent call last):
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\contrib\auth\__init__.py", line 129, in login
+    backend = backend or user.backend
+                         ^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'backend'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\apps\authentication\views.py", line 71, in register_view
+    login(request, user)
+    ~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\frejus\Downloads\wim\wim-plateform\venv\Lib\site-packages\django\contrib\auth\__init__.py", line 135, in login
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: You have multiple authentication backends configured and therefore must provide the `backend` argument or set the `backend` attribute on the user.
+ERROR 2025-09-24 10:28:44,276 basehttp 35928 32352 "POST /auth/register/ HTTP/1.1" 500 84514
+INFO 2025-09-24 10:29:21,286 basehttp 35928 32352 "GET /auth/login/ HTTP/1.1" 200 8668
+INFO 2025-09-24 10:34:59,367 autoreload 35928 30256 C:\Users\frejus\Downloads\wim\wim-plateform\apps\authentication\views.py changed, reloading.
+INFO 2025-09-24 10:35:00,314 autoreload 4024 28600 Watching for file changes with StatReloader
+INFO 2025-09-24 10:35:35,387 autoreload 4024 28600 C:\Users\frejus\Downloads\wim\wim-plateform\apps\authentication\views.py changed, reloading.
+INFO 2025-09-24 10:35:36,108 autoreload 26492 27028 Watching for file changes with StatReloader
+INFO 2025-09-24 10:39:54,587 autoreload 26492 27028 C:\Users\frejus\Downloads\wim\wim-plateform\apps\authentication\views.py changed, reloading.
+INFO 2025-09-24 10:39:55,358 autoreload 31528 5156 Watching for file changes with StatReloader
+INFO 2025-09-24 10:40:53,543 basehttp 31528 12640 "GET / HTTP/1.1" 302 0
+INFO 2025-09-24 10:40:53,620 basehttp 31528 12640 "GET /dashboard/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:40:53,650 basehttp 31528 12640 "GET /auth/login/?next=/dashboard/ HTTP/1.1" 200 8689
+INFO 2025-09-24 10:40:57,253 basehttp 31528 12640 "GET /auth/register/ HTTP/1.1" 200 9306
+INFO 2025-09-24 10:41:08,399 basehttp 31528 12640 "POST /auth/register/ HTTP/1.1" 200 9524
+INFO 2025-09-24 10:41:25,698 basehttp 31528 12640 "POST /auth/register/ HTTP/1.1" 200 9524
+INFO 2025-09-24 10:41:40,260 basehttp 31528 12640 "POST /auth/register/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:41:40,303 basehttp 31528 12640 "GET /dashboard/ HTTP/1.1" 200 59322
+INFO 2025-09-24 10:41:55,602 basehttp 31528 12640 "GET /courses/ HTTP/1.1" 200 73533
+INFO 2025-09-24 10:41:57,331 basehttp 31528 12640 "GET /enrollments/my-courses/ HTTP/1.1" 200 28973
+INFO 2025-09-24 10:41:59,651 basehttp 31528 12640 "GET /dashboard/ HTTP/1.1" 200 58153
+INFO 2025-09-24 10:42:04,433 basehttp 31528 12640 "GET /courses/react-js-complet/ HTTP/1.1" 200 47866
+INFO 2025-09-24 10:42:11,514 basehttp 31528 12640 "GET /courses/ HTTP/1.1" 200 73533
+INFO 2025-09-24 10:42:14,177 basehttp 31528 12640 "GET /courses/python-for-beginners-full-course-programming-tutorial/ HTTP/1.1" 200 103307
+INFO 2025-09-24 10:42:18,471 basehttp 31528 12640 "POST /courses/enroll/8/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:42:18,495 basehttp 31528 12640 "GET /courses/python-for-beginners-full-course-programming-tutorial/ HTTP/1.1" 200 104907
+INFO 2025-09-24 10:42:20,127 basehttp 31528 12640 "GET /courses/python-for-beginners-full-course-programming-tutorial/lesson/0-python-for-beginners-programming-tutorial/ HTTP/1.1" 200 101978
+INFO 2025-09-24 10:42:25,115 basehttp 31528 12640 "POST /courses/htmx/complete/70/ HTTP/1.1" 200 716
+INFO 2025-09-24 10:42:27,694 basehttp 31528 12640 "GET /courses/python-for-beginners-full-course-programming-tutorial/lesson/1-python-tutorial-for-beginners-introduction-to-python/ HTTP/1.1" 200 102758
+INFO 2025-09-24 10:43:06,531 basehttp 31528 12640 "GET /dashboard/ HTTP/1.1" 200 46136
+INFO 2025-09-24 10:43:13,974 basehttp 31528 12640 "GET /dashboard/filter/?difficulty=beginner HTTP/1.1" 200 16274
+INFO 2025-09-24 10:43:18,190 basehttp 31528 12640 "GET /dashboard/filter/?difficulty=intermediate HTTP/1.1" 200 15560
+INFO 2025-09-24 10:43:22,638 basehttp 31528 12640 "GET /dashboard/filter/?difficulty=advanced HTTP/1.1" 200 10036
+INFO 2025-09-24 10:43:27,729 basehttp 31528 12640 "GET /dashboard/filter/?category=data-science HTTP/1.1" 200 5072
+INFO 2025-09-24 10:43:30,017 basehttp 31528 12640 "GET /dashboard/filter/?category=design HTTP/1.1" 200 5077
+INFO 2025-09-24 10:43:32,042 basehttp 31528 12640 "GET /dashboard/filter/?category=mobile HTTP/1.1" 200 611
+INFO 2025-09-24 10:43:36,332 basehttp 31528 12640 "GET /dashboard/filter/?category=dev-web HTTP/1.1" 200 21075
+INFO 2025-09-24 10:43:46,631 basehttp 31528 12640 "GET /certificates/gallery/ HTTP/1.1" 200 33304
+INFO 2025-09-24 10:43:58,935 basehttp 31528 12640 "GET /dashboard/ HTTP/1.1" 200 46136
+INFO 2025-09-24 10:44:02,582 basehttp 31528 12640 "GET /users/settings/ HTTP/1.1" 200 38721
+INFO 2025-09-24 10:44:20,370 basehttp 31528 12640 "GET /dashboard/ HTTP/1.1" 200 46136
+INFO 2025-09-24 10:46:28,993 basehttp 31528 12640 "GET /auth/logout/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:46:29,002 basehttp 31528 12640 "GET /auth/login/ HTTP/1.1" 200 8884
+INFO 2025-09-24 10:46:33,630 basehttp 31528 12640 "GET /accounts/google/login/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:46:47,573 basehttp 31528 12640 "GET /auth/login/ HTTP/1.1" 200 8668
+INFO 2025-09-24 10:46:49,529 basehttp 31528 12640 "GET /auth/register/ HTTP/1.1" 200 9306
+INFO 2025-09-24 10:46:52,388 basehttp 31528 12640 "GET /auth/login/ HTTP/1.1" 200 8668
+INFO 2025-09-24 10:47:08,009 autoreload 18940 38804 Watching for file changes with StatReloader
+INFO 2025-09-24 10:47:11,524 basehttp 18940 30408 "GET /auth/login/ HTTP/1.1" 200 8668
+INFO 2025-09-24 10:47:17,782 basehttp 18940 30408 "GET /accounts/google/login/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:51:39,753 autoreload 7656 17204 Watching for file changes with StatReloader
+INFO 2025-09-24 10:51:43,888 basehttp 7656 16164 "GET / HTTP/1.1" 302 0
+INFO 2025-09-24 10:51:43,917 basehttp 7656 16164 "GET /dashboard/ HTTP/1.1" 302 0
+INFO 2025-09-24 10:51:43,931 basehttp 7656 16164 "GET /auth/login/?next=/dashboard/ HTTP/1.1" 200 8689
+INFO 2025-09-24 10:51:46,577 basehttp 7656 16164 "GET /accounts/google/login/?next=%2Fdashboard%2F HTTP/1.1" 302 0

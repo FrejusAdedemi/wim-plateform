@@ -60,21 +60,35 @@ def register_view(request):
             messages.error(request, 'Cet email est déjà utilisé')
             return render(request, 'authentication/register.html')
 
-        # Créer l'utilisateur
-        user = User.objects.create_user(
-            email=email,
-            password=password,
-            name=name
-        )
+        try:
+            # Créer l'utilisateur
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                name=name
+            )
 
-        # Connecter automatiquement
-        login(request, user)
-        messages.success(request, 'Compte créé avec succès!')
+            # CORRECTION : Authentifier d'abord, puis connecter
+            # Cela garantit que Django utilise le bon backend
+            authenticated_user = authenticate(
+                request,
+                username=email,
+                password=password
+            )
 
-        return redirect('dashboard:index')
+            if authenticated_user is not None:
+                login(request, authenticated_user)
+                messages.success(request, 'Compte créé avec succès!')
+                return redirect('dashboard:index')
+            else:
+                messages.error(request, 'Erreur lors de la connexion automatique')
+                return redirect('authentication:login')
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création du compte: {str(e)}')
+            return render(request, 'authentication/register.html')
 
     return render(request, 'authentication/register.html')
-
 
 @login_required
 def logout_view(request):
