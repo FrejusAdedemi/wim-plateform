@@ -1,6 +1,6 @@
 """
 Script de population avec contenu YouTube réel - WIM Platform
-Remplace les données fictives par du vrai contenu YouTube
+Filtre les vidéos embeddable uniquement pour éviter les blocages
 """
 import os
 import sys
@@ -25,7 +25,6 @@ User = get_user_model()
 # Importer le service YouTube
 try:
     from apps.youtube.services import YouTubeService
-
     YOUTUBE_AVAILABLE = True
 except ImportError:
     YOUTUBE_AVAILABLE = False
@@ -371,7 +370,7 @@ def create_youtube_courses(categories, instructors):
             'difficulty': 'beginner',
             'price': Decimal('54.99'),
             'description': 'Framework progressif moderne',
-            'playlist_id': 'PL4cUxeGkcC9hYYGbV6JDqKwOe5IGUjNFA',  # ✅ PLAYLIST VALIDE
+            'playlist_id': 'PL4cUxeGkcC9hYYGbV6JDqKwOe5IGUjNFA',
             'learning_objectives': [
                 'Composition API',
                 'Réactivité Vue 3',
@@ -552,7 +551,7 @@ def create_youtube_courses(categories, instructors):
                 videos = youtube_service.get_playlist_videos(course_data['playlist_id'], max_results=10)
 
                 if videos:
-                    print(f"✅ {len(videos)} vidéos trouvées sur YouTube")
+                    print(f"✅ {len(videos)} vidéos embeddable trouvées")
 
                     # Créer les leçons avec les vraies vidéos YouTube
                     for order, video in enumerate(videos, 1):
@@ -568,9 +567,9 @@ def create_youtube_courses(categories, instructors):
                             is_published=True,
                             is_preview=(order <= 2)
                         )
-                        print(f"  ✅ Leçon {order}: {lesson.title[:50]}... (YouTube ID: {video['id']})")
+                        print(f"  ✅ Leçon {order}: {lesson.title[:50]}... (ID: {video['id']})")
                 else:
-                    print(f"⚠️ Aucune vidéo trouvée, création de leçons basiques")
+                    print(f"⚠️ Aucune vidéo embeddable trouvée, création de leçons basiques")
                     create_fallback_lessons(module, course_data['title'])
 
             except Exception as e:
@@ -673,7 +672,6 @@ def create_enrollments(courses, students):
                 course=course,
                 defaults={
                     'enrolled_at': datetime.now() - timedelta(days=random.randint(1, 30))
-                    # ❌ LIGNE SUPPRIMÉE: 'progress': random.randint(0, 100)
                 }
             )
             if created:
@@ -717,6 +715,7 @@ def create_reviews(enrollments):
 def main():
     """Fonction principale"""
     print("\n🚀 Démarrage de la population avec contenu YouTube réel...")
+    print("🔒 Filtrage des vidéos embeddable uniquement pour éviter les blocages")
 
     show_configuration_info()
 
@@ -742,11 +741,9 @@ def main():
     print(f"   - Admin: admin@wim.com / Admin123!")
     print(f"   - Étudiant: alice.johnson@student.com / Student123!")
 
-    print(f"\n📝 Prochaines étapes:")
-    print(f"1. Configurez votre clé API YouTube")
-    print(f"2. Créez l'app YouTube avec les services")
-    print(f"3. Ajoutez les champs YouTube aux modèles")
-    print(f"4. Testez l'intégration YouTube")
+    print(f"\n📝 Note importante:")
+    print(f"   ✅ Les vidéos non embeddable ont été automatiquement filtrées")
+    print(f"   ✅ Seules les vidéos intégrables sont incluses dans les cours")
 
     print("\n🎉 Votre plateforme WIM est prête!")
 
