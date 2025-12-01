@@ -1,4 +1,4 @@
-<!-- templates/courses/lesson_view.html - Version YouTube -->
+<!-- templates/courses/lesson_view.html - Version YouTube Optimisée -->
 {% extends 'base.html' %}
 {% load custom_filters %}
 {% load static %}
@@ -17,8 +17,8 @@
             <div class="relative" style="padding-bottom: 56.25%;">
                 <iframe
                     class="absolute top-0 left-0 w-full h-full"
-                    src="https://www.youtube-nocookie.com/embed/{{ lesson.youtube_video_id }}?rel=0&modestbranding=1&enablejsapi=1"
-                    frameborder="0"
+                    src="https://www.youtube-nocookie.com/embed/{{ lesson.youtube_video_id }}?rel=0&modestbranding=1&controls=1&showinfo=0"
+                    style="border: none;"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     referrerpolicy="strict-origin-when-cross-origin"
                     allowfullscreen
@@ -61,7 +61,7 @@
                     <iframe
                         class="absolute top-0 left-0 w-full h-full"
                         src="{{ lesson.video_url }}"
-                        frameborder="0"
+                        style="border: none;"
                         allowfullscreen
                     ></iframe>
                 {% else %}
